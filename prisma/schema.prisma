@@ -7,9 +7,23 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  // https://github.com/prisma/prisma/issues/27556
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+  password String
+  role  Role   @default(USER)
+}
+
+enum Role {
+  USER
+  ADMIN
 }
