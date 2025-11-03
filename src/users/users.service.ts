@@ -36,7 +36,7 @@ export class UsersService {
       },
     });
 
-    const access_token = this.jwtService.sign({ email: createUserDto.email });
+    const access_token = this.jwtService.sign({ id: user.id });
 
     return { user, access_token };
   }
@@ -44,6 +44,13 @@ export class UsersService {
   async findOne(email: string) {
     return await this.databaseService.user.findUnique({
       where: { email },
+    });
+  }
+
+  async validateById(id: number) {
+    return await this.databaseService.user.findUnique({
+      where: { id },
+      select: { id: true, role: true },
     });
   }
 
