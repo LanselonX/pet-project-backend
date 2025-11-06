@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
   // https://github.com/prisma/prisma/issues/27556
   moduleFormat = "cjs"
 }
@@ -17,10 +17,50 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  password String
-  role  Role   @default(USER)
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Meal {
+  id             Int             @id @default(autoincrement())
+  micronutrients Micronutrients?
+  macronutrients Macronutrients?
+  ingredients    String
+  type           MealType[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Macronutrients {
+  id        Int      @id @default(autoincrement())
+  calories  String
+  fat       String
+  carbs     String
+  protein   String
+  fiber     String
+  sugars    String
+  meal      Meal     @relation(fields: [mealId], references: [id])
+  mealId    Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Micronutrients {
+  id        Int      @id @default(autoincrement())
+  omega     String
+  magnesium String
+  vitaminB  String
+  vitaminD  String
+  calcium   String
+  iron      String
+  potassium String
+  sodium    String
+  meal      Meal     @relation(fields: [mealId], references: [id])
+  mealId    Int      @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -28,4 +68,11 @@ model User {
 enum Role {
   USER
   ADMIN
+}
+
+enum MealType {
+  VEGETARIAN
+  NOT_SPICY
+  LOW_CARB
+  GLUTEN_FREE
 }
