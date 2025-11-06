@@ -20,6 +20,7 @@ model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
+  orders    Order[]
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -31,10 +32,31 @@ model Meal {
   description    String
   micronutrients Micronutrients?
   macronutrients Macronutrients?
+  orderItems     OrderItem[]
   ingredients    String
   type           MealType[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  status    OrderStatus @default(PENDING)
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model OrderItem {
+  id       Int   @id @default(autoincrement())
+  order    Order @relation(fields: [orderId], references: [id])
+  orderId  Int
+  meal     Meal  @relation(fields: [mealId], references: [id])
+  mealId   Int
+  price    Float
+  quantity Int
 }
 
 model Macronutrients {
@@ -77,4 +99,10 @@ enum MealType {
   NOT_SPICY
   LOW_CARB
   GLUTEN_FREE
+}
+
+enum OrderStatus {
+  PENDING
+  DELIVERED
+  CANCELED
 }
