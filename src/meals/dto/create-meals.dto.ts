@@ -6,6 +6,12 @@ import { MicronutrientsDto } from './micronutrients.dto';
 
 export class CreateMealsDto {
   @IsString()
+  name: string;
+
+  @IsString()
+  description: string;
+
+  @IsString()
   ingredients: string;
 
   @IsEnum(MealType, { each: true })

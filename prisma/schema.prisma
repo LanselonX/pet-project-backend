@@ -27,6 +27,8 @@ model User {
 
 model Meal {
   id             Int             @id @default(autoincrement())
+  name           String
+  description    String
   micronutrients Micronutrients?
   macronutrients Macronutrients?
   ingredients    String
