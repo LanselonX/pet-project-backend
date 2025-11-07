@@ -21,4 +21,10 @@ export class OrdersService {
       include: { items: true },
     });
   }
+
+  async remove(id: number) {
+    return await this.databaseService.order.delete({
+      where: { id },
+    });
+  }
 }
