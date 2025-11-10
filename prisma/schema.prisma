@@ -51,7 +51,7 @@ model Order {
 
 model OrderItem {
   id       Int   @id @default(autoincrement())
-  order    Order @relation(fields: [orderId], references: [id])
+  order    Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId  Int
   meal     Meal  @relation(fields: [mealId], references: [id])
   mealId   Int
