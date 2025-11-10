@@ -10,6 +10,10 @@ export class MealsService {
   create(createMealsDto: CreateMealsDto) {
     return this.databaseService.meal.create({
       data: {
+        name: createMealsDto.name,
+
+        description: createMealsDto.description,
+
         ingredients: createMealsDto.ingredients,
 
         type: createMealsDto.type,
@@ -39,6 +43,10 @@ export class MealsService {
     return this.databaseService.meal.update({
       where: { id },
       data: {
+        name: updateMealsDto.name,
+
+        description: updateMealsDto.description,
+
         ingredients: updateMealsDto.ingredients,
 
         type: updateMealsDto.type,

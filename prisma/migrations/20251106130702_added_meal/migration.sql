@@ -4,6 +4,8 @@ CREATE TYPE "MealType" AS ENUM ('VEGETARIAN', 'NOT_SPICY', 'LOW_CARB', 'GLUTEN_F
 -- CreateTable
 CREATE TABLE "Meal" (
     "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "ingredients" TEXT NOT NULL,
     "type" "MealType"[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
