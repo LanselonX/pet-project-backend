@@ -41,6 +41,12 @@ export class UsersService {
     return { user, access_token };
   }
 
+  async findUserById(id: number) {
+    return await this.databaseService.user.findUnique({
+      where: { id },
+    });
+  }
+
   async findOne(email: string) {
     return await this.databaseService.user.findUnique({
       where: { email },
