@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsArray, IsInt, IsNumber, IsString } from 'class-validator';
 
 export class CreateChefDto {
   @IsString()
@@ -6,4 +6,8 @@ export class CreateChefDto {
 
   @IsNumber()
   userId: number;
+
+  @IsArray()
+  @IsInt({ each: true })
+  mealIds: number[];
 }

@@ -3,6 +3,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from 'generated/prisma/enums';
+import { Prisma } from 'generated/prisma/browser';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -60,8 +61,9 @@ export class UsersService {
     });
   }
 
-  async update(id: number, role: Role) {
-    return await this.databaseService.user.update({
+  async update(id: number, role: Role, tx?: Prisma.TransactionClient) {
+    const db = tx ?? this.databaseService;
+    return await db.user.update({
       where: { id },
       data: { role },
     });
