@@ -1,7 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { IUser } from './interface/user.interface';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UserResponseDto } from 'src/users/dto/user-response.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -10,6 +15,17 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
+
+  async register(createUserDto: CreateUserDto) {
+    const existUser = await this.usersService.findOne(createUserDto.email);
+    if (existUser) throw new BadRequestException('This user already exist');
+
+    const user = await this.usersService.create(createUserDto);
+
+    const access_token = this.getJwtSign(user.id);
+
+    return { user, access_token };
+  }
 
   async validateUser(email: string, password: string) {
     const user = await this.usersService.findOne(email);
@@ -24,14 +40,16 @@ export class AuthService {
     throw new UnauthorizedException('User or password are incorrect');
   }
 
-  async login(user: IUser) {
+  async login(user: UserResponseDto) {
     const { id, email } = user;
     return {
       id,
       email,
-      access_token: this.jwtService.sign({
-        id: user.id,
-      }),
+      access_token: this.getJwtSign(id),
     };
+  }
+
+  private getJwtSign(id: number) {
+    return this.jwtService.sign({ id });
   }
 }

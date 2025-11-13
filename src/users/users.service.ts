@@ -1,45 +1,29 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { JwtService } from '@nestjs/jwt';
 import { Role } from 'generated/prisma/enums';
 import { Prisma } from 'generated/prisma/browser';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly databaseService: DatabaseService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly databaseService: DatabaseService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const saltOrRounds = 10;
+    const hashedPassword = await this.hashPassword(createUserDto.password);
 
-    const existUser = await this.databaseService.user.findUnique({
-      where: {
-        email: createUserDto.email,
-      },
-    });
-    if (existUser) throw new BadRequestException('This user already exist');
-
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      saltOrRounds,
-    );
-
-    const user = await this.databaseService.user.create({
+    return this.databaseService.user.create({
       data: {
         email: createUserDto.email,
         password: hashedPassword,
         // TODO: its for test
         role: createUserDto.role,
       },
+      select: {
+        id: true,
+        email: true,
+      },
     });
-
-    const access_token = this.jwtService.sign({ id: user.id });
-
-    return { user, access_token };
   }
 
   async findUserById(id: number) {
@@ -73,5 +57,10 @@ export class UsersService {
     return await this.databaseService.user.delete({
       where: { id },
     });
+  }
+
+  private async hashPassword(password: string) {
+    const saltOrRounds = 10;
+    return await bcrypt.hash(password, saltOrRounds);
   }
 }
