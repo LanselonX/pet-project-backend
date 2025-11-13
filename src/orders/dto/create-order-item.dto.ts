@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsNumber } from 'class-validator';
+import { IsInt, IsNumber } from 'class-validator';
 
 export class CreateOrderItemDto {
   // TODO: mb we need object
