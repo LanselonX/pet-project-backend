@@ -24,13 +24,13 @@ export class AuthService {
 
     const access_token = this.getJwtSign(user.id);
 
-    return { user, access_token };
+    return { id: user.id, email: user.email, access_token };
   }
 
   async validateUser(email: string, password: string) {
     const user = await this.usersService.findOne(email);
     if (!user) {
-      return null;
+      throw new UnauthorizedException('User not found');
     }
     const passwordIsMatch = await bcrypt.compare(password, user.password);
 
