@@ -7,16 +7,27 @@ import {
 } from '../../src/utils/constants';
 import { Role } from '../../generated/prisma/enums';
 import { HttpStatus } from '@nestjs/common';
+import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
 
 describe('AuthController (e2e)', () => {
   const app = APP_URL;
   let userId: number;
+  let adminToken: string;
 
   const mockUser = {
     email: 'newe2etestinguser@gmail.com',
     password: 'test',
     role: Role.USER,
   };
+
+  beforeAll(async () => {
+    adminToken = await createAdmin({
+      app,
+      // TODO: NEED ADD BEST PRACTISE
+      email: ADMIN_EMAIL!,
+      password: ADMIN_PASSWORD!,
+    });
+  });
 
   describe('/auth/register (POST)', () => {
     it('it should register new user and return new object', async () => {
@@ -56,16 +67,6 @@ describe('AuthController (e2e)', () => {
   });
 
   afterAll(async () => {
-    const loginRes = await request(app)
-      .post('/auth/login')
-      .send({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD })
-      .expect(200);
-
-    const adminToken = loginRes.body.access_token;
-
-    await request(app)
-      .delete(`/users/${userId}`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .expect(200);
+    await deleteUser({ app, userId, token: adminToken });
   });
 });

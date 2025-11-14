@@ -6,6 +6,7 @@ import {
   ADMIN_PASSWORD,
   APP_URL,
 } from '../../src/utils/constants';
+import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
 
 describe('Chefs controller (e2e)', () => {
   const app = APP_URL;
@@ -20,19 +21,19 @@ describe('Chefs controller (e2e)', () => {
   };
 
   beforeAll(async () => {
-    const loginRes = await request(app)
-      .post('/auth/login')
-      .send({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD })
-      .expect(200);
+    adminToken = await createAdmin({
+      app,
+      // TODO: NEED ADD BEST PRACTISE
+      email: ADMIN_EMAIL!,
+      password: ADMIN_PASSWORD!,
+    });
 
-    adminToken = loginRes.body.access_token;
-
-    const userRes = await request(app)
+    const res = await request(app)
       .post('/auth/register')
       .send(mockUser)
       .expect(201);
 
-    userId = userRes.body.id;
+    userId = res.body.id;
   });
 
   describe('/chefs (POST)', () => {
@@ -73,9 +74,6 @@ describe('Chefs controller (e2e)', () => {
   });
 
   afterAll(async () => {
-    return await request(app)
-      .delete(`/users/${userId}`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .expect(200);
+    await deleteUser({ app, userId, token: adminToken });
   });
 });
