@@ -1,24 +1,18 @@
 import 'dotenv/config';
 import request from 'supertest';
-import { Role } from '../../generated/prisma/enums';
 import {
   ADMIN_EMAIL,
   ADMIN_PASSWORD,
   APP_URL,
 } from '../../src/utils/constants';
 import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
+import { mockUser } from '../../src/utils/mock/user-test.mock';
 
 describe('Chefs controller (e2e)', () => {
   const app = APP_URL;
   let adminToken: string;
   let userId: number;
   let chefId: number;
-
-  const mockUser = {
-    email: 'cheftestinguser@gmail.com',
-    password: 'test',
-    role: Role.USER,
-  };
 
   beforeAll(async () => {
     adminToken = await createAdmin({
