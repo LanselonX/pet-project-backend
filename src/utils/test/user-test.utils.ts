@@ -1,6 +1,6 @@
 import request from 'supertest';
-import { IDeleteInterface } from '../interfaces/delete-user.interface';
-import { IAuthAdminInterface } from '../interfaces/auth-admin.interface';
+import { IDeleteInterface } from './interfaces/delete-user.interface';
+import { IAuthAdminInterface } from './interfaces/auth-admin.interface';
 
 export const createAdmin = async ({
   app,

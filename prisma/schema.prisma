@@ -46,7 +46,7 @@ model Meal {
   orderItems     OrderItem[]
   ingredients    String
   type           MealType[]
-  chef           Chef?            @relation(fields: [chefId], references: [id])
+  chef           Chef?           @relation(fields: [chefId], references: [id])
   chefId         Int?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -80,7 +80,7 @@ model Macronutrients {
   protein   String
   fiber     String
   sugars    String
-  meal      Meal     @relation(fields: [mealId], references: [id])
+  meal      Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
   mealId    Int      @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,7 +96,7 @@ model Micronutrients {
   iron      String
   potassium String
   sodium    String
-  meal      Meal     @relation(fields: [mealId], references: [id])
+  meal      Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
   mealId    Int      @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
