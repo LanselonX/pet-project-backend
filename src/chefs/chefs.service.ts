@@ -4,22 +4,33 @@ import { CreateChefDto } from './dto/create-chef.dto';
 import { Role } from 'generated/prisma/enums';
 import { UsersService } from 'src/users/users.service';
 import { UpdateChefDto } from './dto/update-chef.dto';
+import { FileService } from 'src/file/file.service';
 
 @Injectable()
 export class ChefsService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly usersService: UsersService,
+    private readonly filesService: FileService,
   ) {}
 
   async create(id: number, createChefDto: CreateChefDto) {
     await this.existingChef(id);
 
     return this.databaseService.$transaction(async (tx) => {
+      const finalPath = createChefDto.chefImage
+        ? await this.filesService.confirmImage(
+            createChefDto.chefImage,
+            'chef',
+            id,
+          )
+        : null;
+
       const chef = await tx.chef.create({
         data: {
           bio: createChefDto.bio,
           user: { connect: { id } },
+          chefImage: finalPath,
           meals: {
             connect: createChefDto.mealIds.map((mealId) => ({ id: mealId })),
           },
@@ -67,9 +78,9 @@ export class ChefsService {
     return chef;
   }
 
-  private async existingChef(id: number) {
+  private async existingChef(userId: number) {
     const existChef = await this.databaseService.chef.findUnique({
-      where: { id },
+      where: { userId },
     });
     if (existChef) {
       throw new BadRequestException('Chef already exist for this user');
