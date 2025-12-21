@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { basename, join } from 'path';
 import * as fs from 'node:fs/promises';
 
@@ -24,6 +24,12 @@ export class FileService {
       String(entityId),
     );
     const finalAbsolutePath = join(finalDir, filename);
+
+    try {
+      await fs.access(tempAbsolutePath);
+    } catch {
+      throw new BadRequestException('Temp image not exist or cannot be moved');
+    }
 
     await fs.mkdir(finalDir, { recursive: true });
     await fs.rename(tempAbsolutePath, finalAbsolutePath);

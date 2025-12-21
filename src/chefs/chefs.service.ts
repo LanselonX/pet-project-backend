@@ -78,9 +78,9 @@ export class ChefsService {
     return chef;
   }
 
-  private async existingChef(id: number) {
+  private async existingChef(userId: number) {
     const existChef = await this.databaseService.chef.findUnique({
-      where: { id },
+      where: { userId },
     });
     if (existChef) {
       throw new BadRequestException('Chef already exist for this user');
