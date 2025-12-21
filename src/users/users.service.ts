@@ -10,12 +10,7 @@ export class UsersService {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const saltOrRounds = 10;
-
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      saltOrRounds,
-    );
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     return this.databaseService.user.create({
       data: {
@@ -63,10 +58,4 @@ export class UsersService {
       where: { id },
     });
   }
-
-  // TODO: remove this useless
-  // private async hashPassword(password: string) {
-  //   const saltOrRounds = 10;
-  //   return await bcrypt.hash(password, saltOrRounds);
-  // }
 }
