@@ -18,9 +18,9 @@ export class ChefsService {
     await this.existingChef(id);
 
     return this.databaseService.$transaction(async (tx) => {
-      const finalPath = createChefDto.chefImage
+      const finalPath = createChefDto.imageUrl
         ? await this.filesService.confirmImage(
-            createChefDto.chefImage,
+            createChefDto.imageUrl,
             'chef',
             id,
           )
@@ -30,7 +30,7 @@ export class ChefsService {
         data: {
           bio: createChefDto.bio,
           user: { connect: { id } },
-          chefImage: finalPath,
+          imageUrl: finalPath,
           meals: {
             connect: createChefDto.mealIds.map((mealId) => ({ id: mealId })),
           },
