@@ -92,26 +92,3 @@ export class MealsService {
     });
   }
 }
-
-// return this.databaseService.$transaction(async (tx) => {
-//   if (createMealsDto.imageUrl) {
-//     const imageUrl = await this.filesService.confirmImage(
-//       createMealsDto.imageUrl,
-//       'meal',
-//     );
-//   }
-
-//   const meal = await tx.meal.create({
-//     data: {
-//       name: createMealsDto.name,
-//       description: createMealsDto.description,
-//       ingredients: createMealsDto.ingredients,
-//       type: createMealsDto.type,
-//       macronutrients: { create: createMealsDto.macronutrients },
-//       micronutrients: { create: createMealsDto.micronutrients },
-//       imageUrl: createMealsDto.imageUrl,
-//     },
-//   });
-
-//   return meal;
-// });
