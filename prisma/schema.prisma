@@ -32,7 +32,7 @@ model Chef {
   bio       String
   user      User     @relation(fields: [userId], references: [id])
   userId    Int      @unique
-  chefImage String?
+  imageUrl  String?
   meals     Meal[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,6 +45,7 @@ model Meal {
   micronutrients Micronutrients?
   macronutrients Macronutrients?
   orderItems     OrderItem[]
+  imageUrl       String?
   ingredients    String
   type           MealType[]
   chef           Chef?           @relation(fields: [chefId], references: [id])

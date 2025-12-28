@@ -1,5 +1,13 @@
 import { Type } from 'class-transformer';
-import { IsDefined, IsEnum, IsString, ValidateNested } from 'class-validator';
+import {
+  IsDefined,
+  IsEnum,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsStrongPassword,
+  ValidateNested,
+} from 'class-validator';
 import { MealType } from 'generated/prisma/enums';
 import { MacronutrientsDto } from './macronutrients.dto';
 import { MicronutrientsDto } from './micronutrients.dto';
@@ -26,4 +34,8 @@ export class CreateMealsDto {
   @ValidateNested()
   @Type(() => MicronutrientsDto)
   micronutrients: MicronutrientsDto;
+
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 }

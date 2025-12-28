@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { faker, FoodModule } from '@faker-js/faker';
 import { PrismaClient } from '../generated/prisma/client';
 import { MealType, Role } from '../generated/prisma/enums';
 import {
@@ -37,6 +37,8 @@ async function seedMeals() {
             ...macronutrientsData,
           },
         },
+        // TODO: NEED TO CHANGE, TESTING LOGIC
+        imageUrl: faker.image.urlPicsumPhotos({ width: 400, height: 400 }),
       },
     });
   }

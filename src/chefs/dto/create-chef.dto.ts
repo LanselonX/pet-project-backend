@@ -19,5 +19,5 @@ export class CreateChefDto {
 
   @IsString()
   @IsOptional()
-  chefImage?: string;
+  imageUrl?: string;
 }
