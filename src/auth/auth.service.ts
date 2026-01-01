@@ -7,11 +7,13 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserResponseDto } from 'src/users/dto/user-response.dto';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
@@ -21,10 +23,20 @@ export class AuthService {
     if (existUser) throw new BadRequestException('This user already exist');
 
     const user = await this.usersService.create(createUserDto);
+    const tokens = await this.issueToken(user.id);
 
-    const access_token = this.getJwtSign(user.id);
+    return {
+      user: { id: user.id, email: user.email },
+      ...tokens,
+    };
+  }
 
-    return { id: user.id, email: user.email, access_token };
+  async login(user: UserResponseDto) {
+    const tokens = await this.issueToken(user.id);
+    return {
+      user: { id: user.id, email: user.email },
+      ...tokens,
+    };
   }
 
   async validateUser(email: string, password: string) {
@@ -40,16 +52,46 @@ export class AuthService {
     throw new UnauthorizedException('User or password are incorrect');
   }
 
-  async login(user: UserResponseDto) {
-    const { id, email } = user;
-    return {
-      id,
-      email,
-      access_token: this.getJwtSign(id),
-    };
+  async logout(userId: number) {
+    await this.usersService.removeRefreshToken(userId);
+    return { cookie: this.getCookiesForLogout() };
   }
 
-  private getJwtSign(id: number) {
-    return this.jwtService.sign({ id });
+  private getAccessToken(id: number) {
+    const payload = { id };
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_ACCESS_SECRET'),
+      expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
+    });
+  }
+
+  private getCookieRefreshToken(id: number) {
+    const payload = { id };
+    const refreshTokenCookie = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION')}`,
+    });
+    const cookie = `Refresh=${refreshTokenCookie}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_REFRESH_EXPIRATION')}; SameSite=Lax;`;
+    return { cookie, refreshTokenCookie };
+  }
+
+  private async issueToken(userId: number) {
+    const accessToken = this.getAccessToken(userId);
+    const refreshToken = this.getCookieRefreshToken(userId);
+
+    await this.usersService.setCurrentRefreshToken(
+      refreshToken.refreshTokenCookie,
+      userId,
+    );
+
+    return { accessToken, refreshTokenCookie: refreshToken.cookie };
+  }
+
+  private getCookiesForLogout() {
+    return ['Refresh=; HttpOnly; Path=/; Max-Age=0'];
+  }
+
+  public issueAccessToken(userId: number) {
+    return this.getAccessToken(userId);
   }
 }

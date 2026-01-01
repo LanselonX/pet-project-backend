@@ -11,14 +11,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly usersService: UsersService,
   ) {
     //TODO: we need to find the best practice
-    const secret = configService.get('JWT_SECRET');
+    const secret = configService.get('JWT_ACCESS_SECRET');
     if (!secret) {
       throw new Error('secret key not found');
     }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret,
+      secretOrKey: Buffer.from(secret, 'hex'),
     });
   }
 

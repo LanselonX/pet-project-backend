@@ -54,6 +54,7 @@ async function seedUsers() {
       email: 'lanselon1221@gmail.com',
       password: passwordData,
       role: Role.ADMIN,
+      refreshToken: null,
     },
   });
   await prisma.user.upsert({
@@ -63,6 +64,7 @@ async function seedUsers() {
       email: 'testuser@gmail.com',
       password: passwordData,
       role: Role.USER,
+      refreshToken: null,
     },
   });
   await prisma.user.upsert({
@@ -72,6 +74,7 @@ async function seedUsers() {
       email: 'newuser@gmail.com',
       password: passwordData,
       role: Role.USER,
+      refreshToken: null,
     },
   });
 
@@ -82,6 +85,7 @@ async function seedUsers() {
       email: 'newuser2@gmail.com',
       password: passwordData,
       role: Role.USER,
+      refreshToken: null,
     },
   });
 }
