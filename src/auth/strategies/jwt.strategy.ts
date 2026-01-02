@@ -10,7 +10,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
-    //TODO: we need to find the best practice
     const secret = configService.get('JWT_ACCESS_SECRET');
     if (!secret) {
       throw new Error('secret key not found');
@@ -18,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: Buffer.from(secret, 'hex'),
+      secretOrKey: secret,
     });
   }
 

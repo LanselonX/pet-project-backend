@@ -37,7 +37,6 @@ async function seedMeals() {
             ...macronutrientsData,
           },
         },
-        // TODO: NEED TO CHANGE, TESTING LOGIC
         imageUrl: faker.image.urlPicsumPhotos({ width: 400, height: 400 }),
       },
     });
