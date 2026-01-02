@@ -6,7 +6,6 @@ import * as fs from 'node:fs/promises';
 export class FileService {
   async confirmImage(
     tempPath: string,
-    //TODO: change to greater extensibility
     entiyName: string,
     entityId: number,
   ): Promise<string> {

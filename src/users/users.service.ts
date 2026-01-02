@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Role } from 'generated/prisma/enums';
@@ -56,6 +56,39 @@ export class UsersService {
   async remove(id: number) {
     return await this.databaseService.user.delete({
       where: { id },
+    });
+  }
+
+  async setCurrentRefreshToken(refreshToken: string, userId: number) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.databaseService.user.update({
+      where: { id: userId },
+      data: { refreshToken: hashedRefreshToken },
+    });
+  }
+
+  async getUserIfRefreshTokenIsMatches(refreshToken: string, userId: number) {
+    const user = await this.findUserById(userId);
+
+    const userRefreshToken = user?.refreshToken;
+    if (!userRefreshToken) {
+      throw new BadRequestException('Refresh token not find');
+    }
+
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      userRefreshToken,
+    );
+
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
+  async removeRefreshToken(userId: number) {
+    return this.databaseService.user.update({
+      where: { id: userId },
+      data: { refreshToken: null },
     });
   }
 }
