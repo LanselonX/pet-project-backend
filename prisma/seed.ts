@@ -26,6 +26,7 @@ async function seedMeals() {
         name: faker.food.meat(),
         description: faker.lorem.words({ min: 10, max: 20 }),
         ingredients: faker.food.ingredient(),
+        price: faker.number.int({ min: 450, max: 600 }),
         type: [MealType.VEGETARIAN],
         macronutrients: {
           create: {

@@ -2,10 +2,10 @@ import { Type } from 'class-transformer';
 import {
   IsDefined,
   IsEnum,
-  IsObject,
+  IsNumber,
   IsOptional,
   IsString,
-  IsStrongPassword,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { MealType } from 'generated/prisma/enums';
@@ -24,6 +24,10 @@ export class CreateMealsDto {
 
   @IsEnum(MealType, { each: true })
   type: MealType[];
+
+  @IsNumber()
+  @Min(50)
+  price: number;
 
   @IsDefined()
   @ValidateNested()
