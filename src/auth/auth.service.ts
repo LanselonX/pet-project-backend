@@ -5,9 +5,8 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UserResponseDto } from 'src/users/dto/user-response.dto';
 import { ConfigService } from '@nestjs/config';
+import { AuthRegisterDto } from './dto/auth-register.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -18,11 +17,11 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(createUserDto: CreateUserDto) {
-    const existUser = await this.usersService.findOne(createUserDto.email);
+  async register(authRegisterDto: AuthRegisterDto) {
+    const existUser = await this.usersService.findOne(authRegisterDto.email);
     if (existUser) throw new BadRequestException('This user already exist');
 
-    const user = await this.usersService.create(createUserDto);
+    const user = await this.usersService.create(authRegisterDto);
     const tokens = await this.issueToken(user.id);
 
     return {
@@ -31,10 +30,10 @@ export class AuthService {
     };
   }
 
-  async login(user: UserResponseDto) {
-    const tokens = await this.issueToken(user.id);
+  async login(id: number, email: string) {
+    const tokens = await this.issueToken(id);
     return {
-      user: { id: user.id, email: user.email },
+      user: { id, email },
       ...tokens,
     };
   }

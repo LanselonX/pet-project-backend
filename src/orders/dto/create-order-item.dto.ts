@@ -6,7 +6,4 @@ export class CreateOrderItemDto {
 
   @IsInt()
   quantity: number;
-
-  // @IsNumber()
-  // price: number;
 }

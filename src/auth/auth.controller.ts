@@ -8,13 +8,15 @@ import {
   HttpStatus,
   HttpCode,
   Req,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import type { RequestWithRes } from './interface/request-user';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { AuthRegisterDto } from './dto/auth-register.dto';
+import type { Response } from 'express';
+import type { ReqWithUser } from 'common/interfaces/request-user';
 
 @Controller('auth')
 export class AuthController {
@@ -22,44 +24,50 @@ export class AuthController {
 
   @Post('register')
   async register(
-    @Body() createUserDto: CreateUserDto,
-    @Req() request: RequestWithRes,
+    @Body() authRegisterDto: AuthRegisterDto,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const { user, accessToken, refreshTokenCookie } =
-      await this.authService.register(createUserDto);
+      await this.authService.register(authRegisterDto);
 
-    request.res.setHeader('Set-Cookie', [refreshTokenCookie]);
+    res.setHeader('Set-Cookie', refreshTokenCookie);
     return { user, accessToken };
   }
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async login(@Request() req) {
+  async login(
+    @Request() req: ReqWithUser,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { user, accessToken, refreshTokenCookie } =
-      await this.authService.login(req.user);
+      await this.authService.login(req.user.id, req.user.email);
 
-    req.res.setHeader('Set-Cookie', [refreshTokenCookie]);
+    res.setHeader('Set-Cookie', [refreshTokenCookie]);
     return { user, accessToken };
   }
 
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
-  refresh(@Req() request: RequestWithRes) {
-    const accessToken = this.authService.issueAccessToken(request.user?.id);
+  refresh(@Req() req: ReqWithUser) {
+    const accessToken = this.authService.issueAccessToken(req.user.id);
     return { accessToken };
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Req() request: RequestWithRes) {
-    const { cookie } = await this.authService.logout(request.user.id);
-    request.res.setHeader('Set-Cookie', cookie);
+  async logout(
+    @Req() req: ReqWithUser,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { cookie } = await this.authService.logout(req.user.id);
+    res.setHeader('Set-Cookie', cookie);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
+  getProfile(@Request() req: ReqWithUser) {
     return req.user;
   }
 }
