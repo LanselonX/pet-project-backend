@@ -1,11 +1,12 @@
 -- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'COMPLETED', 'CANCELED');
+CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'SHIPPED', 'DELIVERED', 'CANCELED');
 
 -- CreateTable
 CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
     "userId" INTEGER NOT NULL,
+    "totalPrice" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

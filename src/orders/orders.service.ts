@@ -1,30 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { MealsService } from 'src/meals/meals.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly mealsService: MealsService,
+  ) {}
 
-  create(userId: number, createOrderDto: CreateOrderDto) {
+  async create(userId: number, createOrderDto: CreateOrderDto) {
+    const mealIds = createOrderDto.items.map(({ mealId }) => mealId);
+
+    const meals = await this.mealsService.findMany(mealIds);
+    const mealsMap = new Map(meals.map((meal) => [meal.id, meal]));
+
+    const items = createOrderDto.items.map(({ mealId, quantity }) => {
+      const meal = mealsMap.get(mealId);
+      if (!meal) {
+        throw new BadRequestException(`Meal with ${mealId} not found!`);
+      }
+      return {
+        mealId,
+        quantity,
+        price: meal.price,
+      };
+    });
+
+    // TODO: More checks are needed to ensure the price doesn't change
+    const totalPrice = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
+
     return this.databaseService.order.create({
       data: {
         userId,
-        items: {
-          create: createOrderDto.items.map((item) => ({
-            mealId: item.mealId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
+        totalPrice,
+        items: { create: items },
       },
       include: { items: true },
     });
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {
-    // TODO: If you need to add it so that the admin can change the order items
     return this.databaseService.order.update({
       where: { id },
       data: {

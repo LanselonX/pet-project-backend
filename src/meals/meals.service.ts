@@ -29,6 +29,7 @@ export class MealsService {
         name: createMealsDto.name,
         description: createMealsDto.description,
         ingredients: createMealsDto.ingredients,
+        price: createMealsDto.price,
         type: createMealsDto.type,
         macronutrients: { create: createMealsDto.macronutrients },
         micronutrients: { create: createMealsDto.micronutrients },
@@ -56,6 +57,13 @@ export class MealsService {
   findById(id: number) {
     return this.databaseService.meal.findUnique({
       where: { id },
+    });
+  }
+
+  findMany(ids: number[]) {
+    return this.databaseService.meal.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, price: true },
     });
   }
 

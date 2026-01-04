@@ -17,6 +17,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'generated/prisma/enums';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import type { ReqWithUser } from 'common/interfaces/request-user';
 
 @Controller({ path: 'orders' })
 export class OrdersController {
@@ -24,7 +25,10 @@ export class OrdersController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    @Request() req: ReqWithUser,
+  ) {
     const userId = req.user.id;
     return this.ordersService.create(userId, createOrderDto);
   }

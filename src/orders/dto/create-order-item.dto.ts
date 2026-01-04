@@ -1,4 +1,4 @@
-import { IsInt, IsNumber } from 'class-validator';
+import { IsInt } from 'class-validator';
 
 export class CreateOrderItemDto {
   @IsInt()
@@ -6,7 +6,4 @@ export class CreateOrderItemDto {
 
   @IsInt()
   quantity: number;
-
-  @IsNumber()
-  price: number;
 }
