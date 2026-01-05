@@ -7,6 +7,9 @@ import {
   APP_URL,
 } from '../../src/utils/constants';
 import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
+import { join } from 'node:path';
+import { mkdir, writeFile } from 'fs/promises';
+// import { writeFile } from 'node:fs/promises';
 
 describe('Chefs controller (e2e)', () => {
   const app = APP_URL;
@@ -15,10 +18,13 @@ describe('Chefs controller (e2e)', () => {
   let chefId: number;
 
   const mockUser = {
-    email: 'cheftestinguser@gmail.com',
+    email: 'chefe2etest@gmail.com',
     password: 'test',
     role: Role.USER,
   };
+
+  const TMP_DIR = join(process.cwd(), 'uploads', 'tmp');
+  const TEST_IMAGE = join(TMP_DIR, 'test-chef.jpg');
 
   beforeAll(async () => {
     adminToken = await createAdmin({
@@ -28,12 +34,15 @@ describe('Chefs controller (e2e)', () => {
       password: ADMIN_PASSWORD!,
     });
 
+    await mkdir(TMP_DIR, { recursive: true });
+    await writeFile(TEST_IMAGE, 'fake image content');
+
     const res = await request(app)
       .post('/auth/register')
       .send(mockUser)
       .expect(201);
 
-    userId = res.body.id;
+    userId = res.body.user.id;
   });
 
   describe('/chefs (POST)', () => {
@@ -45,6 +54,7 @@ describe('Chefs controller (e2e)', () => {
           bio: 'e2e bio for chef',
           userId: userId,
           mealIds: [1, 2, 3],
+          imageUrl: '/uploads/tmp/test-chef.jpg',
         })
         .expect(201);
       chefId = res.body.id;

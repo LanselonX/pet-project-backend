@@ -15,7 +15,7 @@ describe('AuthController (e2e)', () => {
   let adminToken: string;
 
   const mockUser = {
-    email: 'newe2etestinguser@gmail.com',
+    email: 'authe2eusertest@gmail.com',
     password: 'test',
     role: Role.USER,
   };
@@ -36,11 +36,11 @@ describe('AuthController (e2e)', () => {
         .send(mockUser)
         .expect(201)
         .expect(({ body }) => {
-          expect(body.email).toEqual(mockUser.email);
-          expect(body.id).toBeDefined;
-          expect(body.access_token).toBeDefined();
+          expect(body.user.email).toEqual(mockUser.email);
+          expect(body.user.id).toBeDefined();
+          expect(body.accessToken).toBeDefined();
         });
-      userId = res.body.id;
+      userId = res.body.user.id;
     });
     it('should fail when trying to register with existing email', () => {
       return request(app)
@@ -60,8 +60,8 @@ describe('AuthController (e2e)', () => {
         })
         .expect(200)
         .expect(({ body }) => {
-          expect(body.email).toEqual(mockUser.email);
-          expect(body.access_token).toBeDefined();
+          expect(body.user.email).toEqual(mockUser.email);
+          expect(body.accessToken).toBeDefined();
         });
     });
   });

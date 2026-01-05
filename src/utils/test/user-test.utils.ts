@@ -12,7 +12,7 @@ export const createAdmin = async ({
     .send({ email, password })
     .expect(200);
 
-  return res.body.access_token;
+  return res.body.accessToken;
 };
 
 export const deleteUser = async ({ app, userId, token }: IDeleteInterface) => {
