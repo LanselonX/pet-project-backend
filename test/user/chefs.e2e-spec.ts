@@ -9,7 +9,6 @@ import {
 import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
 import { join } from 'node:path';
 import { mkdir, writeFile } from 'fs/promises';
-// import { writeFile } from 'node:fs/promises';
 
 describe('Chefs controller (e2e)', () => {
   const app = APP_URL;
