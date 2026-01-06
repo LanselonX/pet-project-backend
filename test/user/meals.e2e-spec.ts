@@ -1,10 +1,9 @@
-import 'dotenv/config';
 import request from 'supertest';
 import { join } from 'node:path';
 import { APP_URL } from '../../src/utils/constants';
-import { MealType } from '../../generated/prisma/enums';
 import { setupAdmin } from '../setup';
 import { createTestImage, removeTestImage } from '../helpers/files.helper';
+import { mealMock } from '../mocks/meals.mock';
 
 describe('Meals controller (e2e', () => {
   const app = APP_URL;
@@ -13,34 +12,6 @@ describe('Meals controller (e2e', () => {
 
   const TMP_DIR = join(process.cwd(), 'uploads', 'tmp');
   const TEST_IMAGE = join(TMP_DIR, 'test-meal.jpg');
-
-  //TODO: need put away
-  const mockMeal = {
-    name: 'test meal',
-    description: 'test description',
-    ingredients: 'testing ingredients',
-    type: [MealType.NOT_SPICY, MealType.NOT_SPICY],
-    imageUrl: '/uploads/tmp/test-meal.jpg',
-    price: 300,
-    micronutrients: {
-      omega: '123',
-      magnesium: '222',
-      vitaminB: '322',
-      vitaminD: '444',
-      calcium: '555',
-      iron: '777',
-      potassium: '888',
-      sodium: '655',
-    },
-    macronutrients: {
-      calories: '123',
-      fat: '345',
-      carbs: '444',
-      protein: '555',
-      fiber: '432',
-      sugars: '444',
-    },
-  };
 
   beforeAll(async () => {
     adminToken = await setupAdmin(app);
@@ -53,7 +24,7 @@ describe('Meals controller (e2e', () => {
       const res = await request(app)
         .post('/meals')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send(mockMeal)
+        .send(mealMock)
         .expect(201);
 
       mealId = res.body.id;

@@ -1,10 +1,16 @@
 import request from 'supertest';
-import 'dotenv/config';
 
-// import { IDeleteInterface } from '../interfaces/delete-user.interface';
-// import { IAuthInterface } from '../interfaces/auth-admin.interface';
+type LoginParams = {
+  app: string;
+  email: string;
+  password: string;
+};
 
-export const loginAndGetToken = async ({ app, email, password }) => {
+export const loginAndGetToken = async ({
+  app,
+  email,
+  password,
+}: LoginParams): Promise<string> => {
   const res = await request(app)
     .post('/auth/login')
     .send({ email, password })
@@ -12,10 +18,3 @@ export const loginAndGetToken = async ({ app, email, password }) => {
 
   return res.body.accessToken;
 };
-
-// export const deleteUser = async ({ app, userId, token }) => {
-//   return request(app)
-//     .delete(`/users/${userId}`)
-//     .set('Authorization', `Bearer ${token}`)
-//     .expect(200);
-// };

@@ -1,11 +1,10 @@
-import 'dotenv/config';
 import request from 'supertest';
-import { Role } from '../../generated/prisma/enums';
 import { APP_URL } from '../../src/utils/constants';
 import { join } from 'node:path';
 import { setupAdmin } from '../setup';
 import { deleteUser, registerUser } from '../helpers/users.helper';
 import { createTestImage, removeTestImage } from '../helpers/files.helper';
+import { mockUser } from '../mocks/user.mock';
 
 describe('Chefs controller (e2e)', () => {
   const app = APP_URL;
@@ -13,21 +12,17 @@ describe('Chefs controller (e2e)', () => {
   let userId: number;
   let chefId: number;
 
-  const mockUser = {
-    email: 'chefe2etest@gmail.com',
-    password: 'test',
-    role: Role.USER,
-  };
-
   const TMP_DIR = join(process.cwd(), 'uploads', 'tmp');
   const TEST_IMAGE = join(TMP_DIR, 'test-chef.jpg');
+
+  const chefUser = mockUser('chef');
 
   beforeAll(async () => {
     adminToken = await setupAdmin(app);
 
     await createTestImage(TEST_IMAGE);
 
-    const user = await registerUser(app, mockUser);
+    const user = await registerUser(app, chefUser);
     userId = user.id;
   });
 

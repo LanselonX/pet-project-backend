@@ -1,14 +1,13 @@
 import request from 'supertest';
-import 'dotenv/config';
+import { RegisterUserDto } from '../dto/register-user.dto';
 
-//TODO: мне не нравится название dto
-export const registerUser = async (app, dto) => {
-  const res = await request(app).post('/auth/register').send(dto).expect(201);
+export const registerUser = async (app: string, data: RegisterUserDto) => {
+  const res = await request(app).post('/auth/register').send(data).expect(201);
 
   return res.body.user;
 };
 
-export const deleteUser = async (app, id, token) => {
+export const deleteUser = async (app: string, id: number, token: string) => {
   await request(app)
     .delete(`/users/${id}`)
     .set('Authorization', `Bearer ${token}`)

@@ -1,20 +1,13 @@
-import 'dotenv/config';
 import request from 'supertest';
 import { APP_URL } from '../../src/utils/constants';
 import { setupAdmin, setupUser } from '../setup';
+import { ordersMock } from '../mocks/orders.mock';
 
 describe('OrdersController (e2e)', () => {
   const app = APP_URL;
   let adminToken: string;
   let userToken: string;
   let orderId: number;
-
-  const testOrders = {
-    items: [
-      { mealId: 1, quantity: 2 },
-      { mealId: 3, quantity: 11 },
-    ],
-  };
 
   beforeAll(async () => {
     adminToken = await setupAdmin(app);
@@ -26,7 +19,7 @@ describe('OrdersController (e2e)', () => {
       const res = await request(app)
         .post('/orders')
         .set('Authorization', `Bearer ${userToken}`)
-        .send(testOrders)
+        .send(ordersMock)
         .expect(201);
 
       orderId = res.body.id;
