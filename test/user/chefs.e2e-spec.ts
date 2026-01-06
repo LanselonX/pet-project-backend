@@ -1,14 +1,11 @@
 import 'dotenv/config';
 import request from 'supertest';
 import { Role } from '../../generated/prisma/enums';
-import {
-  ADMIN_EMAIL,
-  ADMIN_PASSWORD,
-  APP_URL,
-} from '../../src/utils/constants';
-import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
+import { APP_URL } from '../../src/utils/constants';
 import { join } from 'node:path';
-import { mkdir, writeFile } from 'fs/promises';
+import { setupAdmin } from '../setup';
+import { deleteUser, registerUser } from '../helpers/users.helper';
+import { createTestImage, removeTestImage } from '../helpers/files.helper';
 
 describe('Chefs controller (e2e)', () => {
   const app = APP_URL;
@@ -26,22 +23,12 @@ describe('Chefs controller (e2e)', () => {
   const TEST_IMAGE = join(TMP_DIR, 'test-chef.jpg');
 
   beforeAll(async () => {
-    adminToken = await createAdmin({
-      app,
-      // TODO: NEED ADD BEST PRACTISE
-      email: ADMIN_EMAIL!,
-      password: ADMIN_PASSWORD!,
-    });
+    adminToken = await setupAdmin(app);
 
-    await mkdir(TMP_DIR, { recursive: true });
-    await writeFile(TEST_IMAGE, 'fake image content');
+    await createTestImage(TEST_IMAGE);
 
-    const res = await request(app)
-      .post('/auth/register')
-      .send(mockUser)
-      .expect(201);
-
-    userId = res.body.user.id;
+    const user = await registerUser(app, mockUser);
+    userId = user.id;
   });
 
   describe('/chefs (POST)', () => {
@@ -83,6 +70,7 @@ describe('Chefs controller (e2e)', () => {
   });
 
   afterAll(async () => {
-    await deleteUser({ app, userId, token: adminToken });
+    await deleteUser(app, userId, adminToken);
+    await removeTestImage(TEST_IMAGE);
   });
 });

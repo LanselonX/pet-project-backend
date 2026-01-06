@@ -1,14 +1,10 @@
 import 'dotenv/config';
 import request from 'supertest';
 import { join } from 'node:path';
-import {
-  ADMIN_EMAIL,
-  ADMIN_PASSWORD,
-  APP_URL,
-} from '../../src/utils/constants';
-import { createAdmin } from '../../src/utils/test/user-test.utils';
-import { mkdir, writeFile } from 'fs/promises';
+import { APP_URL } from '../../src/utils/constants';
 import { MealType } from '../../generated/prisma/enums';
+import { setupAdmin } from '../setup';
+import { createTestImage, removeTestImage } from '../helpers/files.helper';
 
 describe('Meals controller (e2e', () => {
   const app = APP_URL;
@@ -47,18 +43,9 @@ describe('Meals controller (e2e', () => {
   };
 
   beforeAll(async () => {
-    adminToken = await createAdmin({
-      app,
-      email: ADMIN_EMAIL!,
-      password: ADMIN_PASSWORD!,
-    });
+    adminToken = await setupAdmin(app);
 
-    try {
-      await mkdir(TMP_DIR, { recursive: true });
-      await writeFile(TEST_IMAGE, 'fake image content');
-    } catch (error) {
-      console.log(error);
-    }
+    await createTestImage(TEST_IMAGE);
   });
 
   describe('/meals (POST)', () => {
@@ -80,5 +67,9 @@ describe('Meals controller (e2e', () => {
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200);
     });
+  });
+
+  afterAll(async () => {
+    await removeTestImage(TEST_IMAGE);
   });
 });

@@ -1,13 +1,10 @@
 import 'dotenv/config';
 import request from 'supertest';
-import {
-  ADMIN_EMAIL,
-  ADMIN_PASSWORD,
-  APP_URL,
-} from '../../src/utils/constants';
+import { APP_URL } from '../../src/utils/constants';
 import { Role } from '../../generated/prisma/enums';
 import { HttpStatus } from '@nestjs/common';
-import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
+import { setupAdmin } from '../setup';
+import { deleteUser } from '../helpers/users.helper';
 
 describe('AuthController (e2e)', () => {
   const app = APP_URL;
@@ -21,12 +18,7 @@ describe('AuthController (e2e)', () => {
   };
 
   beforeAll(async () => {
-    adminToken = await createAdmin({
-      app,
-      // TODO: NEED ADD BEST PRACTISE
-      email: ADMIN_EMAIL!,
-      password: ADMIN_PASSWORD!,
-    });
+    adminToken = await setupAdmin(app);
   });
 
   describe('/auth/register (POST)', () => {
@@ -67,6 +59,6 @@ describe('AuthController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await deleteUser({ app, userId, token: adminToken });
+    await deleteUser(app, userId, adminToken);
   });
 });
