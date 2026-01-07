@@ -1,12 +1,10 @@
-import 'dotenv/config';
 import request from 'supertest';
-import { Role } from '../../generated/prisma/enums';
-import {
-  ADMIN_EMAIL,
-  ADMIN_PASSWORD,
-  APP_URL,
-} from '../../src/utils/constants';
-import { createAdmin, deleteUser } from '../../src/utils/test/user-test.utils';
+import { APP_URL } from '../../src/utils/constants';
+import { join } from 'node:path';
+import { setupAdmin } from '../setup';
+import { deleteUser, registerUser } from '../helpers/users.helper';
+import { createTestImage, removeTestImage } from '../helpers/files.helper';
+import { mockUser } from '../mocks/user.mock';
 
 describe('Chefs controller (e2e)', () => {
   const app = APP_URL;
@@ -14,26 +12,18 @@ describe('Chefs controller (e2e)', () => {
   let userId: number;
   let chefId: number;
 
-  const mockUser = {
-    email: 'cheftestinguser@gmail.com',
-    password: 'test',
-    role: Role.USER,
-  };
+  const TMP_DIR = join(process.cwd(), 'uploads', 'tmp');
+  const TEST_IMAGE = join(TMP_DIR, 'test-chef.jpg');
+
+  const chefUser = mockUser('chef');
 
   beforeAll(async () => {
-    adminToken = await createAdmin({
-      app,
-      // TODO: NEED ADD BEST PRACTISE
-      email: ADMIN_EMAIL!,
-      password: ADMIN_PASSWORD!,
-    });
+    adminToken = await setupAdmin(app);
 
-    const res = await request(app)
-      .post('/auth/register')
-      .send(mockUser)
-      .expect(201);
+    await createTestImage(TEST_IMAGE);
 
-    userId = res.body.id;
+    const user = await registerUser(app, chefUser);
+    userId = user.id;
   });
 
   describe('/chefs (POST)', () => {
@@ -45,6 +35,7 @@ describe('Chefs controller (e2e)', () => {
           bio: 'e2e bio for chef',
           userId: userId,
           mealIds: [1, 2, 3],
+          imageUrl: '/uploads/tmp/test-chef.jpg',
         })
         .expect(201);
       chefId = res.body.id;
@@ -74,6 +65,7 @@ describe('Chefs controller (e2e)', () => {
   });
 
   afterAll(async () => {
-    await deleteUser({ app, userId, token: adminToken });
+    await deleteUser(app, userId, adminToken);
+    await removeTestImage(TEST_IMAGE);
   });
 });
