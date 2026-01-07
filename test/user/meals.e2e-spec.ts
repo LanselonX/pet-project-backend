@@ -31,6 +31,38 @@ describe('Meals controller (e2e', () => {
     });
   });
 
+  describe('/meals (GET)', () => {
+    it('should return meal by id (GET)', async () => {
+      return request(app).get(`/meals/${mealId}`).expect(200);
+    });
+  });
+
+  describe('/meals', () => {
+    it('should get all meals via /meals (GET)', () => {
+      return request(app)
+        .get('/meals')
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.data).toBeDefined();
+          expect(Array.isArray(body.data)).toBe(true);
+          expect(body.hasNextPage).toBeDefined();
+        });
+    });
+  });
+
+  describe('/meals (PATCH)', () => {
+    it('should update meal /meals (UPDATE)', () => {
+      return request(app)
+        .patch(`/meals/${mealId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: 'Updated' })
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.name).toBe('Updated');
+        });
+    });
+  });
+
   describe('meals (DELETE)', () => {
     it('should delete test meal', async () => {
       return await request(app)
