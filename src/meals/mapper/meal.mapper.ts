@@ -11,6 +11,10 @@ export class MealMapper {
 
     dtoEntity.description = raw.description;
 
+    if (raw.imageUrl) {
+      dtoEntity.imageUrl = raw.imageUrl;
+    }
+
     return dtoEntity;
   }
 }
