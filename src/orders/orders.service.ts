@@ -32,7 +32,6 @@ export class OrdersService {
         },
         include: { items: true },
       });
-      console.log('order is', order);
 
       await tx.cartItem.deleteMany({
         where: { cartId: cart.id },
