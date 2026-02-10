@@ -6,9 +6,11 @@ import { MealsModule } from './meals/meals.module';
 import { OrdersModule } from './orders/orders.module';
 import { ChefsModule } from './chefs/chefs.module';
 import { FileModule } from './file/file.module';
+import { CartsModule } from './cart/cart.module';
 
 @Module({
   imports: [
+    CartsModule,
     ChefsModule,
     OrdersModule,
     MealsModule,

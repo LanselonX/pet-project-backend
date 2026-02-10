@@ -1,59 +1,43 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { MealsService } from 'src/meals/meals.service';
+import { CartsService } from 'src/cart/cart.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly mealsService: MealsService,
+    private readonly cartsService: CartsService,
   ) {}
 
-  async create(userId: number, createOrderDto: CreateOrderDto) {
-    const mealIds = createOrderDto.items.map(({ mealId }) => mealId);
+  async confirmOrder(userId: number) {
+    return this.databaseService.$transaction(async (tx) => {
+      const cart = await this.cartsService.getCart(userId, tx);
 
-    const meals = await this.mealsService.findMany(mealIds);
-    const mealsMap = new Map(meals.map((meal) => [meal.id, meal]));
+      const orderItems = cart.items.map((item) => ({
+        mealId: item.mealId,
+        quantity: item.quantity,
+        price: item.price,
+      }));
 
-    const items = createOrderDto.items.map(({ mealId, quantity }) => {
-      const meal = mealsMap.get(mealId);
-      if (!meal) {
-        throw new BadRequestException(`Meal with ${mealId} not found!`);
-      }
-      return {
-        mealId,
-        quantity,
-        price: meal.price,
-      };
-    });
+      const totalPrice = orderItems.reduce(
+        (acc, i) => acc + i.price * i.quantity,
+        0,
+      );
 
-    // TODO: More checks are needed to ensure the price doesn't change
-    const totalPrice = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
+      const order = await tx.order.create({
+        data: {
+          userId,
+          totalPrice,
+          items: { create: orderItems },
+        },
+        include: { items: true },
+      });
 
-    return this.databaseService.order.create({
-      data: {
-        userId,
-        totalPrice,
-        items: { create: items },
-      },
-      include: { items: true },
-    });
-  }
+      await tx.cartItem.deleteMany({
+        where: { cartId: cart.id },
+      });
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return this.databaseService.order.update({
-      where: { id },
-      data: {
-        status: updateOrderDto.status,
-      },
-    });
-  }
-
-  async remove(id: number) {
-    return await this.databaseService.order.delete({
-      where: { id },
+      return order;
     });
   }
 }

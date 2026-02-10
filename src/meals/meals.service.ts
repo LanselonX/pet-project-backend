@@ -60,6 +60,16 @@ export class MealsService {
     });
   }
 
+  findByIdWithInfo(id: number) {
+    return this.databaseService.meal.findUnique({
+      where: { id },
+      include: {
+        macronutrients: true,
+        micronutrients: true,
+      },
+    });
+  }
+
   findMany(ids: number[]) {
     return this.databaseService.meal.findMany({
       where: { id: { in: ids } },

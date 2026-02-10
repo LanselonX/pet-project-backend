@@ -68,6 +68,12 @@ export class MealsController {
     return this.mealsService.findById(+id);
   }
 
+  @Get('info/:id')
+  @HttpCode(HttpStatus.OK)
+  async findByIdWithInfo(@Param('id') id: string) {
+    return this.mealsService.findByIdWithInfo(+id);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
