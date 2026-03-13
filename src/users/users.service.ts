@@ -15,6 +15,7 @@ export class UsersService {
     return this.databaseService.user.create({
       data: {
         email: createUserDto.email,
+        name: createUserDto.name,
         password: hashedPassword,
         // TODO: its for test
         role: createUserDto.role,

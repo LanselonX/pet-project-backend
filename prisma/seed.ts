@@ -6,6 +6,8 @@ import {
   generatedMicronutrients,
   generatedPassword,
 } from 'src/utils/seed-utils';
+import { join } from 'node:path';
+import { readdir } from 'fs/promises';
 
 const prisma = new PrismaClient();
 
@@ -15,6 +17,9 @@ async function main() {
 }
 
 async function seedMeals() {
+  const imagesDir = join(process.cwd(), 'uploads/seed-food');
+  const imageFiles = await readdir(imagesDir);
+
   for (let i = 0; i < 20; i++) {
     const micronutrientsData = generatedMicronutrients();
     const macronutrientsData = generatedMacronutrients();
@@ -24,8 +29,10 @@ async function seedMeals() {
       update: {},
       create: {
         name: faker.food.meat(),
-        description: faker.lorem.words({ min: 10, max: 20 }),
-        ingredients: faker.food.ingredient(),
+        description: faker.lorem.words({ min: 30, max: 50 }),
+        // ingredients: faker.food.ingredient(),
+        // TODO: need rly ingredients
+        ingredients: faker.lorem.words({ min: 30, max: 50 }),
         price: faker.number.int({ min: 450, max: 600 }),
         type: [MealType.VEGETARIAN],
         macronutrients: {
@@ -52,6 +59,7 @@ async function seedUsers() {
     update: {},
     create: {
       email: 'lanselon1221@gmail.com',
+      name: 'lanselon',
       password: passwordData,
       role: Role.ADMIN,
       refreshToken: null,
@@ -62,6 +70,7 @@ async function seedUsers() {
     update: {},
     create: {
       email: 'testuser@gmail.com',
+      name: 'testuser',
       password: passwordData,
       role: Role.USER,
       refreshToken: null,
@@ -72,6 +81,7 @@ async function seedUsers() {
     update: {},
     create: {
       email: 'newuser@gmail.com',
+      name: 'newuser',
       password: passwordData,
       role: Role.USER,
       refreshToken: null,
@@ -83,6 +93,7 @@ async function seedUsers() {
     update: {},
     create: {
       email: 'newuser2@gmail.com',
+      name: 'newuser2',
       password: passwordData,
       role: Role.USER,
       refreshToken: null,

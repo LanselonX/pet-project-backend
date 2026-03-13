@@ -1,24 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
-import { MealsService } from 'src/meals/meals.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class CartsService {
-  constructor(
-    private readonly databaseService: DatabaseService,
-    private readonly mealsService: MealsService,
-  ) {}
+  constructor(private readonly databaseService: DatabaseService) {}
 
-  private async findOrCreateCart(userId: number) {
-    let cart = await this.databaseService.cart.findUnique({
+  private async findOrCreateCart(userId: number, tx: Prisma.TransactionClient) {
+    let cart = await tx.cart.findUnique({
       where: { userId },
       include: { items: true },
     });
 
     if (!cart) {
-      cart = await this.databaseService.cart.create({
+      cart = await tx.cart.create({
         data: { userId },
         include: { items: true },
       });
@@ -27,41 +23,73 @@ export class CartsService {
     return cart;
   }
 
+  private async cartTotalPrice(userId: number, tx: Prisma.TransactionClient) {
+    const cart = await this.findOrCreateCart(userId, tx);
+
+    const totalPrice = cart.items.reduce(
+      (acc, i) => acc + i.price * i.quantity,
+      0,
+    );
+
+    return tx.cart.update({
+      where: { userId },
+      data: { totalPrice },
+    });
+  }
+
   async addToCart(userId: number, createCartDto: CreateCartDto) {
-    const cart = await this.findOrCreateCart(userId);
+    return this.databaseService.$transaction(async (tx) => {
+      const cart = await this.findOrCreateCart(userId, tx);
 
-    for (const items of createCartDto.items) {
-      const meal = await this.mealsService.findById(items.mealId);
-      if (!meal)
-        throw new BadRequestException(`Meal ${createCartDto.items} not found`);
+      const mealIds = createCartDto.items.map((i) => i.mealId);
 
-      const existingItems = await this.databaseService.cartItem.findFirst({
-        where: { cartId: cart.id, mealId: items.mealId },
+      // TODO: need to take logic from meal service + tx
+      const meals = await tx.meal.findMany({
+        where: { id: { in: mealIds } },
       });
 
-      if (existingItems) {
-        await this.databaseService.cartItem.update({
-          where: { id: existingItems.id },
-          data: {
-            quantity: existingItems.quantity + items.quantity,
-            price: meal.price,
-          },
-        });
-      } else {
-        await this.databaseService.cartItem.create({
-          data: {
-            cartId: cart.id,
-            mealId: items.mealId,
-            quantity: items.quantity,
-            price: meal.price,
-          },
-        });
-      }
-    }
+      const mealsMap = new Map(meals.map((m) => [m.id, m]));
 
-    return this.databaseService.cart.findUnique({
-      where: { userId },
-      include: { items: { include: { meal: true } } },
+      for (const item of createCartDto.items) {
+        const meal = mealsMap.get(item.mealId);
+        if (!meal)
+          throw new BadRequestException(`Meal ${item.mealId} not found`);
+
+        const existingItems = await tx.cartItem.findUnique({
+          where: {
+            cartId_mealId: {
+              cartId: cart.id,
+              mealId: item.mealId,
+            },
+          },
+        });
+
+        if (existingItems) {
+          await tx.cartItem.update({
+            where: { id: existingItems.id },
+            data: {
+              quantity: existingItems.quantity + item.quantity,
+              price: meal.price,
+            },
+          });
+        } else {
+          await tx.cartItem.create({
+            data: {
+              cartId: cart.id,
+              mealId: item.mealId,
+              quantity: item.quantity,
+              price: meal.price,
+            },
+          });
+        }
+      }
+
+      await this.cartTotalPrice(userId, tx);
+
+      return tx.cart.findUnique({
+        where: { userId },
+        include: { items: { include: { meal: true } } },
+      });
     });
   }
 
@@ -72,14 +100,21 @@ export class CartsService {
       include: { items: true },
     });
 
-    if (!cart) {
-      throw new BadRequestException('Cart not found');
-    }
-
-    if (cart.items.length === 0) {
-      throw new BadRequestException('Cart is Empty');
+    if (!cart || cart.items.length === 0) {
+      throw new BadRequestException('Cart is empty');
     }
 
     return cart;
+  }
+
+  async getAllCartItems(userId: number) {
+    return await this.databaseService.cart.findUnique({
+      where: { userId },
+      include: {
+        items: {
+          include: { meal: true },
+        },
+      },
+    });
   }
 }

@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { CartsService } from './cart.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateCartDto } from './dto/create-cart.dto';
@@ -16,5 +23,12 @@ export class CartsController {
   ) {
     const userId = req.user.id;
     return this.cartsService.addToCart(userId, createCartDto);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getCartItems(@Request() req: ReqWithUser) {
+    const userId = req.user.id;
+    return this.cartsService.getAllCartItems(userId);
   }
 }

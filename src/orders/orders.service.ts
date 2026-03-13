@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CartsService } from 'src/cart/cart.service';
 
@@ -13,21 +13,21 @@ export class OrdersService {
     return this.databaseService.$transaction(async (tx) => {
       const cart = await this.cartsService.getCart(userId, tx);
 
+      const orderTotalPrice = cart.totalPrice;
+      if (!orderTotalPrice) {
+        throw new BadRequestException('Error with total price');
+      }
+
       const orderItems = cart.items.map((item) => ({
         mealId: item.mealId,
         quantity: item.quantity,
         price: item.price,
       }));
 
-      const totalPrice = orderItems.reduce(
-        (acc, i) => acc + i.price * i.quantity,
-        0,
-      );
-
       const order = await tx.order.create({
         data: {
           userId,
-          totalPrice,
+          totalPrice: orderTotalPrice,
           items: { create: orderItems },
         },
         include: { items: true },
