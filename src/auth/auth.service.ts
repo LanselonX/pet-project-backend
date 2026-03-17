@@ -90,6 +90,9 @@ export class AuthService {
   }
 
   private getCookiesForLogout() {
-    return ['Refresh=; HttpOnly; Path=/; Max-Age=0'];
+    return [
+      `Authentication=; HttpOnly; Path=/; Max-Age=0`,
+      `Refresh=; HttpOnly; Path=/; Max-Age=0`,
+    ];
   }
 }

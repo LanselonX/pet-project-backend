@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CartsService } from 'src/cart/cart.service';
+import { IPaginationOptions } from 'common/types/pagination-options';
 
 @Injectable()
 export class OrdersService {
@@ -38,6 +39,34 @@ export class OrdersService {
       });
 
       return order;
+    });
+  }
+
+  async findAllWithPagination({
+    userId,
+    paginationOptions,
+  }: {
+    userId: number;
+    paginationOptions: IPaginationOptions;
+  }) {
+    const [orders, totalCount] = await this.databaseService.$transaction([
+      this.databaseService.order.findMany({
+        where: { userId },
+        skip: (paginationOptions.page - 1) * paginationOptions.limit,
+        take: paginationOptions.limit,
+      }),
+      this.databaseService.order.count({
+        where: { userId },
+      }),
+    ]);
+
+    return { totalCount, orders };
+  }
+
+  async getOrderById(id: number) {
+    return this.databaseService.order.findUnique({
+      where: { id },
+      include: { items: { include: { meal: true } } },
     });
   }
 }

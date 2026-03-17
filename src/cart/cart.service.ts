@@ -23,6 +23,19 @@ export class CartsService {
     return cart;
   }
 
+  // TODO: in future this needs to be finished
+  async clearCart(userId: number, tx: Prisma.TransactionClient) {
+    const cart = await this.getCart(userId, tx);
+
+    await tx.cartItem.deleteMany({
+      where: { cartId: cart.id },
+    });
+
+    await tx.cart.delete({
+      where: { userId },
+    });
+  }
+
   private async cartTotalPrice(userId: number, tx: Prisma.TransactionClient) {
     const cart = await this.findOrCreateCart(userId, tx);
 
