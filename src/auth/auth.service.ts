@@ -32,6 +32,7 @@ export class AuthService {
 
   async login(id: number, email: string) {
     const tokens = await this.issueToken(id);
+
     return {
       user: { id, email },
       ...tokens,
@@ -56,15 +57,17 @@ export class AuthService {
     return { cookie: this.getCookiesForLogout() };
   }
 
-  private getAccessToken(id: number) {
+  getCookieAccessToken(id: number) {
     const payload = { id };
-    return this.jwtService.sign(payload, {
+    const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
     });
+    //NEED HTTP ONLY!!!
+    return `Authentication=${accessToken}; Path=/; Max-Age=${this.configService.get('JWT_ACCESS_EXPIRATION')}`;
   }
 
-  private getCookieRefreshToken(id: number) {
+  getCookieRefreshToken(id: number) {
     const payload = { id };
     const refreshTokenCookie = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
@@ -75,7 +78,7 @@ export class AuthService {
   }
 
   private async issueToken(userId: number) {
-    const accessToken = this.getAccessToken(userId);
+    const accessTokenCookie = this.getCookieAccessToken(userId);
     const refreshToken = this.getCookieRefreshToken(userId);
 
     await this.usersService.setCurrentRefreshToken(
@@ -83,14 +86,13 @@ export class AuthService {
       userId,
     );
 
-    return { accessToken, refreshTokenCookie: refreshToken.cookie };
+    return { accessTokenCookie, refreshTokenCookie: refreshToken.cookie };
   }
 
   private getCookiesForLogout() {
-    return ['Refresh=; HttpOnly; Path=/; Max-Age=0'];
-  }
-
-  public issueAccessToken(userId: number) {
-    return this.getAccessToken(userId);
+    return [
+      `Authentication=; HttpOnly; Path=/; Max-Age=0`,
+      `Refresh=; HttpOnly; Path=/; Max-Age=0`,
+    ];
   }
 }

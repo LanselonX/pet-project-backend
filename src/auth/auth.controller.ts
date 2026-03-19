@@ -27,11 +27,11 @@ export class AuthController {
     @Body() authRegisterDto: AuthRegisterDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { user, accessToken, refreshTokenCookie } =
+    const { user, accessTokenCookie, refreshTokenCookie } =
       await this.authService.register(authRegisterDto);
 
     res.setHeader('Set-Cookie', refreshTokenCookie);
-    return { user, accessToken };
+    return { user, accessTokenCookie };
   }
 
   @Post('login')
@@ -41,18 +41,21 @@ export class AuthController {
     @Request() req: ReqWithUser,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { user, accessToken, refreshTokenCookie } =
+    const { accessTokenCookie, refreshTokenCookie, user } =
       await this.authService.login(req.user.id, req.user.email);
 
-    res.setHeader('Set-Cookie', [refreshTokenCookie]);
-    return { user, accessToken };
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+
+    return { user };
   }
 
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
-  refresh(@Req() req: ReqWithUser) {
-    const accessToken = this.authService.issueAccessToken(req.user.id);
-    return { accessToken };
+  refresh(@Req() req: ReqWithUser, @Res({ passthrough: true }) res: Response) {
+    const accessToken = this.authService.getCookieAccessToken(req.user.id);
+    res.setHeader('Set-Cookie', [accessToken]);
+
+    return { success: true };
   }
 
   @Post('logout')

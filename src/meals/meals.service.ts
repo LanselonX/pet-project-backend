@@ -4,6 +4,7 @@ import { CreateMealsDto } from './dto/create-meals.dto';
 import { UpdateMealsDto } from './dto/update-meals.dto';
 import { IPaginationOptions } from 'common/types/pagination-options';
 import { FileService } from 'src/file/file.service';
+import { Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class MealsService {
@@ -70,8 +71,9 @@ export class MealsService {
     });
   }
 
-  findMany(ids: number[]) {
-    return this.databaseService.meal.findMany({
+  // TODO: usage only in cart service
+  mealFindMany(ids: number[], tx: Prisma.TransactionClient) {
+    return tx.meal.findMany({
       where: { id: { in: ids } },
       select: { id: true, price: true },
     });
