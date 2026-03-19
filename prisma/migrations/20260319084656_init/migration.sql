@@ -53,7 +53,6 @@ CREATE TABLE "Meal" (
 CREATE TABLE "Cart" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
-    "totalPrice" DOUBLE PRECISION,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

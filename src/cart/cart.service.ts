@@ -2,10 +2,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { Prisma } from 'generated/prisma/client';
+import { MealsService } from 'src/meals/meals.service';
+import { makeTotalPrice } from 'src/utils/total-price.utils';
 
 @Injectable()
 export class CartsService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly mealsService: MealsService,
+  ) {}
 
   private async findOrCreateCart(userId: number, tx: Prisma.TransactionClient) {
     let cart = await tx.cart.findUnique({
@@ -23,31 +28,18 @@ export class CartsService {
     return cart;
   }
 
-  // TODO: in future this needs to be finished
-  async clearCart(userId: number, tx: Prisma.TransactionClient) {
-    const cart = await this.getCart(userId, tx);
-
-    await tx.cartItem.deleteMany({
-      where: { cartId: cart.id },
-    });
-
-    await tx.cart.delete({
+  async getCart(userId: number, tx: Prisma.TransactionClient) {
+    const db = tx ?? this.databaseService;
+    const cart = await db.cart.findUnique({
       where: { userId },
+      include: { items: true },
     });
-  }
 
-  private async cartTotalPrice(userId: number, tx: Prisma.TransactionClient) {
-    const cart = await this.findOrCreateCart(userId, tx);
+    if (!cart || cart.items.length === 0) {
+      throw new BadRequestException('Cart is empty');
+    }
 
-    const totalPrice = cart.items.reduce(
-      (acc, i) => acc + i.price * i.quantity,
-      0,
-    );
-
-    return tx.cart.update({
-      where: { userId },
-      data: { totalPrice },
-    });
+    return cart;
   }
 
   async addToCart(userId: number, createCartDto: CreateCartDto) {
@@ -56,26 +48,25 @@ export class CartsService {
 
       const mealIds = createCartDto.items.map((i) => i.mealId);
 
-      // TODO: need to take logic from meal service + tx
-      const meals = await tx.meal.findMany({
-        where: { id: { in: mealIds } },
-      });
+      const meals = await this.mealsService.mealFindMany(mealIds, tx);
 
       const mealsMap = new Map(meals.map((m) => [m.id, m]));
+
+      const existingItems = await tx.cartItem.findMany({
+        where: {
+          cartId: cart.id,
+          mealId: { in: mealIds },
+        },
+      });
+
+      const existingItemsMap = new Map(existingItems.map((i) => [i.mealId, i]));
 
       for (const item of createCartDto.items) {
         const meal = mealsMap.get(item.mealId);
         if (!meal)
           throw new BadRequestException(`Meal ${item.mealId} not found`);
 
-        const existingItems = await tx.cartItem.findUnique({
-          where: {
-            cartId_mealId: {
-              cartId: cart.id,
-              mealId: item.mealId,
-            },
-          },
-        });
+        const existingItems = existingItemsMap.get(item.mealId);
 
         if (existingItems) {
           await tx.cartItem.update({
@@ -96,32 +87,11 @@ export class CartsService {
           });
         }
       }
-
-      await this.cartTotalPrice(userId, tx);
-
-      return tx.cart.findUnique({
-        where: { userId },
-        include: { items: { include: { meal: true } } },
-      });
     });
-  }
-
-  async getCart(userId: number, tx?: Prisma.TransactionClient) {
-    const db = tx ?? this.databaseService;
-    const cart = await db.cart.findUnique({
-      where: { userId },
-      include: { items: true },
-    });
-
-    if (!cart || cart.items.length === 0) {
-      throw new BadRequestException('Cart is empty');
-    }
-
-    return cart;
   }
 
   async getAllCartItems(userId: number) {
-    return await this.databaseService.cart.findUnique({
+    const cart = await this.databaseService.cart.findUnique({
       where: { userId },
       include: {
         items: {
@@ -129,5 +99,11 @@ export class CartsService {
         },
       },
     });
+
+    if (!cart) return null;
+
+    const totalPrice = makeTotalPrice(cart.items);
+
+    return { ...cart, totalPrice };
   }
 }

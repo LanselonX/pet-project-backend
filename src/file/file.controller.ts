@@ -12,7 +12,7 @@ import { diskStorage } from 'multer';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { editFileName, imageFileFilter } from 'src/utils/file-utils';
+import { editFileName, imageFileFilter } from 'src/utils/file.utils';
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard, RolesGuard)

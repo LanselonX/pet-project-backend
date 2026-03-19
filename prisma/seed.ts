@@ -5,7 +5,7 @@ import {
   generatedMacronutrients,
   generatedMicronutrients,
   generatedPassword,
-} from 'src/utils/seed-utils';
+} from 'src/utils/seed.utils';
 import { join } from 'node:path';
 import { readdir } from 'fs/promises';
 
