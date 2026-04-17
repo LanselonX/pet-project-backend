@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { MealType } from 'generated/prisma/enums';
 import * as bcrypt from 'bcrypt';
 
 export function generatedMicronutrients() {
@@ -23,6 +24,12 @@ export function generatedMacronutrients() {
     potassium: faker.number.int({ min: 50, max: 300 }).toString(),
     sodium: faker.number.int({ min: 20, max: 150 }).toString(),
   };
+}
+
+export function getRandomEnumMealType(): MealType {
+  const values = Object.keys(MealType);
+  const randomValues = Math.floor(Math.random() * values.length);
+  return MealType[values[randomValues]];
 }
 
 export async function generatedPassword() {

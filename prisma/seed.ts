@@ -1,13 +1,12 @@
-import { faker, FoodModule } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { PrismaClient } from '../generated/prisma/client';
-import { MealType, Role } from '../generated/prisma/enums';
+import { Role } from '../generated/prisma/enums';
 import {
   generatedMacronutrients,
   generatedMicronutrients,
   generatedPassword,
+  getRandomEnumMealType,
 } from 'src/utils/seed.utils';
-import { join } from 'node:path';
-import { readdir } from 'fs/promises';
 
 const prisma = new PrismaClient();
 
@@ -17,10 +16,10 @@ async function main() {
 }
 
 async function seedMeals() {
-  const imagesDir = join(process.cwd(), 'uploads/seed-food');
-  const imageFiles = await readdir(imagesDir);
+  // const imagesDir = join(process.cwd(), 'uploads/seed-food');
+  // const imageFiles = await readdir(imagesDir);
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 30; i++) {
     const micronutrientsData = generatedMicronutrients();
     const macronutrientsData = generatedMacronutrients();
 
@@ -30,11 +29,10 @@ async function seedMeals() {
       create: {
         name: faker.food.meat(),
         description: faker.lorem.words({ min: 30, max: 50 }),
-        // ingredients: faker.food.ingredient(),
         // TODO: need rly ingredients
         ingredients: faker.lorem.words({ min: 30, max: 50 }),
         price: faker.number.int({ min: 450, max: 600 }),
-        type: [MealType.VEGETARIAN],
+        type: [getRandomEnumMealType()],
         macronutrients: {
           create: {
             ...micronutrientsData,
