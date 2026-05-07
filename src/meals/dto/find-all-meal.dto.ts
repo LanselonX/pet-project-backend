@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional } from 'class-validator';
+import { MealType } from 'generated/prisma/enums';
 
 export class FindAllMealsDto {
   @Transform(({ value }) => (value ? Number(value) : 1))
@@ -11,4 +12,8 @@ export class FindAllMealsDto {
   @IsNumber()
   @IsOptional()
   limit?: number;
+
+  @IsOptional()
+  @IsEnum(MealType)
+  filters?: MealType;
 }

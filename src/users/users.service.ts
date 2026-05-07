@@ -27,6 +27,19 @@ export class UsersService {
     });
   }
 
+  // TODO: check this!
+  async findAllUsers() {
+    return await this.databaseService.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   async findUserById(id: number) {
     return await this.databaseService.user.findUnique({
       where: { id },

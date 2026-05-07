@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateMealsDto } from './dto/create-meals.dto';
 import { UpdateMealsDto } from './dto/update-meals.dto';
-import { IPaginationOptions } from 'common/types/pagination-options';
 import { FileService } from 'src/file/file.service';
-import { Prisma } from 'generated/prisma/client';
+import { MealType, Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class MealsService {
@@ -39,20 +38,28 @@ export class MealsService {
     });
   }
 
-  async findAllWithPagination({
-    paginationOptions,
-  }: {
-    paginationOptions: IPaginationOptions;
-  }) {
-    const [meals, totalCount] = await this.databaseService.$transaction([
-      this.databaseService.meal.findMany({
-        skip: (paginationOptions.page - 1) * paginationOptions.limit,
-        take: paginationOptions.limit,
-      }),
-      this.databaseService.meal.count(),
-    ]);
+  async getMeals(type?: MealType[]) {
+    const meals = this.databaseService.meal.findMany({
+      where: {
+        ...(type && type.length > 0 ? { type: { hasSome: type } } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        imageUrl: true,
+        macronutrients: {
+          select: {
+            calories: true,
+            fat: true,
+            protein: true,
+            carbs: true,
+          },
+        },
+      },
+    });
 
-    return { totalCount, meals };
+    return meals;
   }
 
   findById(id: number) {
