@@ -52,7 +52,10 @@ export class AuthController {
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
   refresh(@Req() req: ReqWithUser, @Res({ passthrough: true }) res: Response) {
-    const accessToken = this.authService.getCookieAccessToken(req.user.id);
+    const accessToken = this.authService.getCookieAccessToken(
+      req.user.id,
+      req.user.role,
+    );
     res.setHeader('Set-Cookie', [accessToken]);
 
     return { success: true };

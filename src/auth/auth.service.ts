@@ -57,8 +57,8 @@ export class AuthService {
     return { cookie: this.getCookiesForLogout() };
   }
 
-  getCookieAccessToken(id: number) {
-    const payload = { id };
+  getCookieAccessToken(id: number, role: string) {
+    const payload = { id, role };
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
@@ -78,7 +78,13 @@ export class AuthService {
   }
 
   private async issueToken(userId: number) {
-    const accessTokenCookie = this.getCookieAccessToken(userId);
+    // TODO: check this!
+    const user = await this.usersService.findUserById(userId);
+    if (!user) {
+      throw new Error('user not found');
+    }
+
+    const accessTokenCookie = this.getCookieAccessToken(userId, user.role);
     const refreshToken = this.getCookieRefreshToken(userId);
 
     await this.usersService.setCurrentRefreshToken(

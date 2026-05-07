@@ -43,7 +43,22 @@ export class MealsService {
       where: {
         ...(type && type.length > 0 ? { type: { hasSome: type } } : {}),
       },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        imageUrl: true,
+        macronutrients: {
+          select: {
+            calories: true,
+            fat: true,
+            protein: true,
+            carbs: true,
+          },
+        },
+      },
     });
+
     return meals;
   }
 

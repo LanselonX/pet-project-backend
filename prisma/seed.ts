@@ -7,6 +7,8 @@ import {
   generatedPassword,
   getRandomEnumMealType,
 } from 'src/utils/seed.utils';
+import { join } from 'node:path';
+import { readdir } from 'node:fs/promises';
 
 const prisma = new PrismaClient();
 
@@ -16,19 +18,22 @@ async function main() {
 }
 
 async function seedMeals() {
-  // const imagesDir = join(process.cwd(), 'uploads/seed-food');
-  // const imageFiles = await readdir(imagesDir);
+  const imagesDir = join(process.cwd(), 'uploads/seed-food');
+  const imageFiles = await readdir(imagesDir);
+
+  const images = imageFiles.filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f));
 
   for (let i = 0; i < 30; i++) {
     const micronutrientsData = generatedMicronutrients();
     const macronutrientsData = generatedMacronutrients();
+    const randomImage = faker.helpers.arrayElement(images);
 
     await prisma.meal.upsert({
       where: { id: i + 1 },
       update: {},
       create: {
         name: faker.food.meat(),
-        description: faker.lorem.words({ min: 30, max: 50 }),
+        description: faker.lorem.words({ min: 8, max: 15 }),
         // TODO: need rly ingredients
         ingredients: faker.lorem.words({ min: 30, max: 50 }),
         price: faker.number.int({ min: 450, max: 600 }),
@@ -43,7 +48,8 @@ async function seedMeals() {
             ...macronutrientsData,
           },
         },
-        imageUrl: faker.image.urlPicsumPhotos({ width: 400, height: 400 }),
+        // TODO: bad practise
+        imageUrl: `http://localhost:3000/uploads/seed-food/${randomImage}`,
       },
     });
   }
