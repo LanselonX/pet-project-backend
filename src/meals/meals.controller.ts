@@ -24,8 +24,22 @@ export class MealsController {
   constructor(private readonly mealsService: MealsService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   getMeals(@MealTypeQuery() type?: MealType[]) {
     return this.mealsService.getMeals(type);
+  }
+
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  getAllMealsAdmin() {
+    return this.mealsService.getAllMealsAdmin();
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async findByIdWithInfo(@Param('id') id: string) {
+    return this.mealsService.findByIdWithInfo(+id);
   }
 
   @Post()
@@ -33,18 +47,6 @@ export class MealsController {
   @Roles(Role.ADMIN)
   create(@Body() createMealsDto: CreateMealsDto) {
     return this.mealsService.create(createMealsDto);
-  }
-
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  async findById(@Param('id') id: string) {
-    return this.mealsService.findById(+id);
-  }
-
-  @Get('info/:id')
-  @HttpCode(HttpStatus.OK)
-  async findByIdWithInfo(@Param('id') id: string) {
-    return this.mealsService.findByIdWithInfo(+id);
   }
 
   @Patch(':id')

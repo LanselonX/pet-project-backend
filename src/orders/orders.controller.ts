@@ -13,9 +13,11 @@ import type { ReqWithUser } from 'common/interfaces/request-user';
 import { FindAllOrdersDto } from './dto/find-all-orders.dto';
 import { InfinityPaginationResponseDto } from 'common/dto/infinity-pagination-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
-import { Order } from 'generated/prisma/client';
+import { Order, Role } from 'generated/prisma/client';
 import { infinityPagination } from 'common/infinity-pagination';
 import { OrderMapper } from './mapper/order.mapper';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller({ path: 'orders' })
 export class OrdersController {
@@ -26,6 +28,13 @@ export class OrdersController {
   async create(@Request() req: ReqWithUser) {
     const userId = req.user.id;
     return this.ordersService.confirmOrder(userId);
+  }
+
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  getAllOrdersAdmin() {
+    return this.ordersService.getAllOrdersAdmin();
   }
 
   @Get()
@@ -60,7 +69,14 @@ export class OrdersController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  async findById(@Param('id') id: string) {
-    return this.ordersService.getOrderById(+id);
+  async findById(@Param('id') id: string, @Request() req: ReqWithUser) {
+    return this.ordersService.getOrderById(+id, req.user.id);
+  }
+
+  @Get('admin/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async getOrderByIdAdmin(@Param('id') id: string) {
+    return this.ordersService.getOrderByIdAdmin(+id);
   }
 }
