@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CartsService } from 'src/cart/cart.service';
 import { IPaginationOptions } from 'common/types/pagination-options';
@@ -40,6 +40,10 @@ export class OrdersService {
     });
   }
 
+  async getAllOrdersAdmin() {
+    return this.databaseService.order.findMany();
+  }
+
   async findAllWithPagination({
     userId,
     paginationOptions,
@@ -61,8 +65,15 @@ export class OrdersService {
     return { totalCount, orders };
   }
 
-  async getOrderById(id: number) {
+  async getOrderById(id: number, userId: number) {
     return this.databaseService.order.findUnique({
+      where: { id, userId },
+      include: { items: { include: { meal: true } } },
+    });
+  }
+
+  async getOrderByIdAdmin(id: number) {
+    return await this.databaseService.order.findUnique({
       where: { id },
       include: { items: { include: { meal: true } } },
     });

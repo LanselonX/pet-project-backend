@@ -38,8 +38,12 @@ export class MealsService {
     });
   }
 
+  async getAllMealsAdmin() {
+    return this.databaseService.meal.findMany();
+  }
+
   async getMeals(type?: MealType[]) {
-    const meals = this.databaseService.meal.findMany({
+    const meal = this.databaseService.meal.findMany({
       where: {
         ...(type && type.length > 0 ? { type: { hasSome: type } } : {}),
       },
@@ -59,13 +63,7 @@ export class MealsService {
       },
     });
 
-    return meals;
-  }
-
-  findById(id: number) {
-    return this.databaseService.meal.findUnique({
-      where: { id },
-    });
+    return meal;
   }
 
   findByIdWithInfo(id: number) {
