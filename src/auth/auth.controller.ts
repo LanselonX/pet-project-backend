@@ -30,8 +30,8 @@ export class AuthController {
     const { user, accessTokenCookie, refreshTokenCookie } =
       await this.authService.register(authRegisterDto);
 
-    res.setHeader('Set-Cookie', refreshTokenCookie);
-    return { user, accessTokenCookie };
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+    return { user };
   }
 
   @Post('login')

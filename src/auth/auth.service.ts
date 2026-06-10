@@ -63,8 +63,11 @@ export class AuthService {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
     });
-    //NEED HTTP ONLY!!!
-    return `Authentication=${accessToken}; Path=/; Max-Age=${this.configService.get('JWT_ACCESS_EXPIRATION')}`;
+
+    const maxAge = Number(this.configService.get('JWT_ACCESS_EXPIRATION'));
+    const secure = this.configService.get('NODE_ENV') === 'production';
+
+    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure ? '; Secure' : ''}`;
   }
 
   getCookieRefreshToken(id: number) {
@@ -73,7 +76,11 @@ export class AuthService {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION')}`,
     });
-    const cookie = `Refresh=${refreshTokenCookie}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_REFRESH_EXPIRATION')}; SameSite=Lax;`;
+
+    const maxAge = Number(this.configService.get('JWT_REFRESH_EXPIRATION'));
+    const secure = this.configService.get('NODE_ENV') === 'production';
+
+    const cookie = `Refresh=${refreshTokenCookie}; HttpOnly; Path=/auth/refresh; Max-Age=${maxAge}; SameSite=Lax${secure ? '; Secure' : ''}`;
     return { cookie, refreshTokenCookie };
   }
 
@@ -81,7 +88,7 @@ export class AuthService {
     // TODO: check this!
     const user = await this.usersService.findUserById(userId);
     if (!user) {
-      throw new Error('user not found');
+      throw new UnauthorizedException('user not found');
     }
 
     const accessTokenCookie = this.getCookieAccessToken(userId, user.role);
@@ -97,8 +104,8 @@ export class AuthService {
 
   private getCookiesForLogout() {
     return [
-      `Authentication=; HttpOnly; Path=/; Max-Age=0`,
-      `Refresh=; HttpOnly; Path=/; Max-Age=0`,
+      `Authentication=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax`,
+      `Refresh=; HttpOnly; Path=/auth/refresh; Max-Age=0; SameSite=Lax`,
     ];
   }
 }
