@@ -94,9 +94,11 @@ export class UsersService {
       userRefreshToken,
     );
 
-    if (isRefreshTokenMatching) {
-      return user;
+    if (!isRefreshTokenMatching) {
+      throw new BadRequestException('Refresh token is not matching');
     }
+
+    return user;
   }
 
   async removeRefreshToken(userId: number) {
