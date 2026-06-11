@@ -61,7 +61,7 @@ export class AuthService {
     const payload = { id, role };
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
+      expiresIn: Number(this.configService.get('JWT_ACCESS_EXPIRATION')),
     });
 
     const maxAge = Number(this.configService.get('JWT_ACCESS_EXPIRATION'));
@@ -74,7 +74,7 @@ export class AuthService {
     const payload = { id };
     const refreshTokenCookie = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION')}`,
+      expiresIn: Number(this.configService.get('JWT_REFRESH_EXPIRATION')),
     });
 
     const maxAge = Number(this.configService.get('JWT_REFRESH_EXPIRATION'));
