@@ -10,7 +10,6 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use(cookieParser());
 
-  // TODO: CORS for frontend in another repo
   app.enableCors({
     origin: process.env.CLIENT_URL,
     credentials: true,
@@ -31,4 +30,5 @@ async function bootstrap() {
   );
   await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();
