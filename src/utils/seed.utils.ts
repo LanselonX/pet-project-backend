@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { MealType } from 'generated/prisma/enums';
+import { MealType } from '../../generated/prisma/enums';
 import * as bcrypt from 'bcrypt';
 
 export function generatedMicronutrients() {

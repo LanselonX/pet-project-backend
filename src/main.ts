@@ -20,6 +20,9 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads',
   });
+  app.useStaticAssets(join(process.cwd(), 'assets'), {
+    prefix: '/assets',
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -28,7 +31,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 
 bootstrap();

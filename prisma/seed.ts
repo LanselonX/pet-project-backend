@@ -6,7 +6,7 @@ import {
   generatedMicronutrients,
   generatedPassword,
   getRandomEnumMealType,
-} from 'src/utils/seed.utils';
+} from '../src/utils/seed.utils';
 import { join } from 'node:path';
 import { readdir } from 'node:fs/promises';
 
@@ -18,7 +18,7 @@ async function main() {
 }
 
 async function seedMeals() {
-  const imagesDir = join(process.cwd(), 'uploads/seed-food');
+  const imagesDir = join(process.cwd(), 'assets/seed-food');
   const imageFiles = await readdir(imagesDir);
 
   const images = imageFiles.filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f));
@@ -48,8 +48,7 @@ async function seedMeals() {
             ...macronutrientsData,
           },
         },
-        // TODO: bad practise
-        imageUrl: `http://localhost:3000/uploads/seed-food/${randomImage}`,
+        imageUrl: `${process.env.BACKEND_URL}/assets/seed-food/${randomImage}`,
       },
     });
   }
