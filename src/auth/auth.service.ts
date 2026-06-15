@@ -66,8 +66,9 @@ export class AuthService {
 
     const maxAge = Number(this.configService.get('JWT_ACCESS_EXPIRATION'));
     const secure = this.configService.get('NODE_ENV') === 'production';
+    const secureFlag = secure ? ' Secure;' : '';
 
-    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=None; Secure=${secure};`;
+    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax;${secureFlag}`;
   }
 
   getCookieRefreshToken(id: number) {
@@ -79,8 +80,9 @@ export class AuthService {
 
     const maxAge = Number(this.configService.get('JWT_REFRESH_EXPIRATION'));
     const secure = this.configService.get('NODE_ENV') === 'production';
+    const secureFlag = secure ? ' Secure;' : '';
 
-    const cookie = `Refresh=${refreshTokenCookie}; HttpOnly; Path=/auth/refresh; Max-Age=${maxAge}; SameSite=None; Secure=${secure};`;
+    const cookie = `Refresh=${refreshTokenCookie}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax;${secureFlag}`;
     return { cookie, refreshTokenCookie };
   }
 
