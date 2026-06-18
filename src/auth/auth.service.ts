@@ -83,7 +83,6 @@ export class AuthService {
   }
 
   private async issueToken(userId: number) {
-    // TODO: check this!
     const user = await this.usersService.findUserById(userId);
     if (!user) {
       throw new UnauthorizedException('user not found');

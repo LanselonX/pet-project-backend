@@ -17,8 +17,6 @@ export class UsersService {
         email: createUserDto.email,
         name: createUserDto.name,
         password: hashedPassword,
-        // TODO: its for test
-        role: createUserDto.role,
       },
       select: {
         id: true,
@@ -27,7 +25,6 @@ export class UsersService {
     });
   }
 
-  // TODO: check this!
   async findAllUsers() {
     return await this.databaseService.user.findMany({
       select: {
