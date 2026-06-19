@@ -103,12 +103,12 @@ model OrderItem {
 
 model Macronutrients {
   id        Int      @id @default(autoincrement())
-  calories  String
-  fat       String
-  carbs     String
-  protein   String
-  fiber     String
-  sugars    String
+  calories  Int
+  fat       Int
+  carbs     Int
+  protein   Int
+  fiber     Int
+  sugars    Int
   meal      Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
   mealId    Int      @unique
   createdAt DateTime @default(now())
@@ -117,14 +117,14 @@ model Macronutrients {
 
 model Micronutrients {
   id        Int      @id @default(autoincrement())
-  omega     String
-  magnesium String
-  vitaminB  String
-  vitaminD  String
-  calcium   String
-  iron      String
-  potassium String
-  sodium    String
+  omega     Int
+  magnesium Int
+  vitaminB  Int
+  vitaminD  Int
+  calcium   Int
+  iron      Int
+  potassium Int
+  sodium    Int
   meal      Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
   mealId    Int      @unique
   createdAt DateTime @default(now())

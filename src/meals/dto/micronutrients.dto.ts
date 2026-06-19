@@ -1,27 +1,27 @@
-import { IsString } from 'class-validator';
+import { IsNumber } from 'class-validator';
 
 export class MicronutrientsDto {
-  @IsString()
-  omega: string;
+  @IsNumber()
+  omega: number;
 
-  @IsString()
-  magnesium: string;
+  @IsNumber()
+  magnesium: number;
 
-  @IsString()
-  vitaminB: string;
+  @IsNumber()
+  vitaminB: number;
 
-  @IsString()
-  vitaminD: string;
+  @IsNumber()
+  vitaminD: number;
 
-  @IsString()
-  calcium: string;
+  @IsNumber()
+  calcium: number;
 
-  @IsString()
-  iron: string;
+  @IsNumber()
+  iron: number;
 
-  @IsString()
-  potassium: string;
+  @IsNumber()
+  potassium: number;
 
-  @IsString()
-  sodium: string;
+  @IsNumber()
+  sodium: number;
 }

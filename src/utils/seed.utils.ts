@@ -4,25 +4,25 @@ import * as bcrypt from 'bcrypt';
 
 export function generatedMicronutrients() {
   return {
-    calories: faker.number.int({ min: 100, max: 700 }).toString(),
-    fat: faker.number.int({ min: 10, max: 70 }).toString(),
-    carbs: faker.number.int({ min: 10, max: 30 }).toString(),
-    protein: faker.number.int({ min: 10, max: 15 }).toString(),
-    fiber: faker.number.int({ min: 5, max: 10 }).toString(),
-    sugars: faker.number.int({ min: 0, max: 20 }).toString(),
+    calories: faker.number.int({ min: 100, max: 700 }),
+    fat: faker.number.int({ min: 10, max: 70 }),
+    carbs: faker.number.int({ min: 10, max: 30 }),
+    protein: faker.number.int({ min: 10, max: 15 }),
+    fiber: faker.number.int({ min: 5, max: 10 }),
+    sugars: faker.number.int({ min: 0, max: 20 }),
   };
 }
 
 export function generatedMacronutrients() {
   return {
-    omega: faker.number.int({ min: 0, max: 10 }).toString(),
-    magnesium: faker.number.int({ min: 10, max: 100 }).toString(),
-    vitaminB: faker.number.int({ min: 5, max: 50 }).toString(),
-    vitaminD: faker.number.int({ min: 1, max: 20 }).toString(),
-    calcium: faker.number.int({ min: 10, max: 200 }).toString(),
-    iron: faker.number.int({ min: 1, max: 15 }).toString(),
-    potassium: faker.number.int({ min: 50, max: 300 }).toString(),
-    sodium: faker.number.int({ min: 20, max: 150 }).toString(),
+    omega: faker.number.int({ min: 0, max: 10 }),
+    magnesium: faker.number.int({ min: 10, max: 100 }),
+    vitaminB: faker.number.int({ min: 5, max: 50 }),
+    vitaminD: faker.number.int({ min: 1, max: 20 }),
+    calcium: faker.number.int({ min: 10, max: 200 }),
+    iron: faker.number.int({ min: 1, max: 15 }),
+    potassium: faker.number.int({ min: 50, max: 300 }),
+    sodium: faker.number.int({ min: 20, max: 150 }),
   };
 }
 
