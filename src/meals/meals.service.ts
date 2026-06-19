@@ -13,28 +13,30 @@ export class MealsService {
   ) {}
 
   async create(createMealsDto: CreateMealsDto) {
-    // TODO: update this logic, mb transaction
-    const randomInt = Math.floor(Math.random() * 5555);
+    return this.databaseService.$transaction(async (tx) => {
+      const meal = await tx.meal.create({
+        data: {
+          name: createMealsDto.name,
+          description: createMealsDto.description,
+          ingredients: createMealsDto.ingredients,
+          price: createMealsDto.price,
+          type: createMealsDto.type,
+          macronutrients: { create: createMealsDto.macronutrients },
+          micronutrients: { create: createMealsDto.micronutrients },
+        },
+      });
 
-    const image = createMealsDto.imageUrl
-      ? await this.filesService.confirmImage(
+      if (createMealsDto.imageUrl) {
+        const finalUrl = await this.filesService.confirmImage(
           createMealsDto.imageUrl,
           'meal',
-          randomInt,
-        )
-      : null;
-
-    return this.databaseService.meal.create({
-      data: {
-        name: createMealsDto.name,
-        description: createMealsDto.description,
-        ingredients: createMealsDto.ingredients,
-        price: createMealsDto.price,
-        type: createMealsDto.type,
-        macronutrients: { create: createMealsDto.macronutrients },
-        micronutrients: { create: createMealsDto.micronutrients },
-        imageUrl: image,
-      },
+          meal.id,
+        );
+        return tx.meal.update({
+          where: { id: meal.id },
+          data: { imageUrl: finalUrl },
+        });
+      }
     });
   }
 
@@ -76,7 +78,6 @@ export class MealsService {
     });
   }
 
-  // TODO: usage only in cart service
   mealFindMany(ids: number[], tx: Prisma.TransactionClient) {
     return tx.meal.findMany({
       where: { id: { in: ids } },

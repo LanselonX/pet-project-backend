@@ -34,8 +34,12 @@ async function seedMeals() {
       create: {
         name: faker.food.meat(),
         description: faker.lorem.words({ min: 8, max: 15 }),
-        // TODO: need rly ingredients
-        ingredients: faker.lorem.words({ min: 30, max: 50 }),
+        ingredients: faker.helpers
+          .uniqueArray(
+            () => faker.food.ingredient(),
+            faker.number.int({ min: 3, max: 8 }),
+          )
+          .join(', '),
         price: faker.number.int({ min: 450, max: 600 }),
         type: [getRandomEnumMealType()],
         macronutrients: {

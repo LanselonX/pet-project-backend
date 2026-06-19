@@ -6,7 +6,7 @@ import * as fs from 'node:fs/promises';
 export class FileService {
   async confirmImage(
     tempPath: string,
-    entiyName: string,
+    entityName: string,
     entityId: number,
   ): Promise<string> {
     if (!tempPath.startsWith('/uploads/tmp')) {
@@ -19,7 +19,7 @@ export class FileService {
     const finalDir = join(
       process.cwd(),
       'uploads',
-      entiyName,
+      entityName,
       String(entityId),
     );
     const finalAbsolutePath = join(finalDir, filename);
@@ -33,6 +33,6 @@ export class FileService {
     await fs.mkdir(finalDir, { recursive: true });
     await fs.rename(tempAbsolutePath, finalAbsolutePath);
 
-    return `/uploads/${entiyName}/${entityId}/${filename}`;
+    return `${process.env.BACKEND_URL}/uploads/${entityName}/${entityId}/${filename}`;
   }
 }
