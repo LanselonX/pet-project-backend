@@ -42,4 +42,8 @@ export class CreateMealsDto {
   @IsString()
   @IsOptional()
   imageUrl?: string;
+
+  @IsNumber()
+  @IsOptional()
+  chefId?: number;
 }

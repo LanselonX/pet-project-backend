@@ -98,11 +98,11 @@ export class MealsService {
         type: updateMealsDto.type,
 
         macronutrients: {
-          create: updateMealsDto.macronutrients,
+          update: updateMealsDto.macronutrients,
         },
 
         micronutrients: {
-          create: updateMealsDto.micronutrients,
+          update: updateMealsDto.micronutrients,
         },
       },
       include: {
@@ -116,5 +116,9 @@ export class MealsService {
     return await this.databaseService.meal.delete({
       where: { id },
     });
+  }
+
+  async mealsCount() {
+    return await this.databaseService.meal.count();
   }
 }

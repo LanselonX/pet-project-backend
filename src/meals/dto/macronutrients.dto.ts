@@ -1,21 +1,21 @@
-import { IsString } from 'class-validator';
+import { IsNumber } from 'class-validator';
 
 export class MacronutrientsDto {
-  @IsString()
-  calories: string;
+  @IsNumber()
+  calories: number;
 
-  @IsString()
-  fat: string;
+  @IsNumber()
+  fat: number;
 
-  @IsString()
-  carbs: string;
+  @IsNumber()
+  carbs: number;
 
-  @IsString()
-  protein: string;
+  @IsNumber()
+  protein: number;
 
-  @IsString()
-  fiber: string;
+  @IsNumber()
+  fiber: number;
 
-  @IsString()
-  sugars: string;
+  @IsNumber()
+  sugars: number;
 }

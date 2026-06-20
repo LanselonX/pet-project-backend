@@ -104,4 +104,8 @@ export class UsersService {
       data: { refreshToken: null },
     });
   }
+
+  async usersCount() {
+    return await this.databaseService.user.count();
+  }
 }

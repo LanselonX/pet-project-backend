@@ -49,7 +49,7 @@ export class MealsController {
     return this.mealsService.create(createMealsDto);
   }
 
-  @Patch(':id')
+  @Patch('admin/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)

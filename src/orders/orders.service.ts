@@ -3,6 +3,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { CartsService } from 'src/cart/cart.service';
 import { IPaginationOptions } from 'common/types/pagination-options';
 import { makeTotalPrice } from 'src/utils/total-price.utils';
+import { OrderStatus } from 'generated/prisma/enums';
 
 @Injectable()
 export class OrdersService {
@@ -76,6 +77,40 @@ export class OrdersService {
     return await this.databaseService.order.findUnique({
       where: { id },
       include: { items: { include: { meal: true } } },
+    });
+  }
+
+  async updateOrderStatus(id: number, status: OrderStatus) {
+    return this.databaseService.order.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  async ordersCount() {
+    return await this.databaseService.order.count();
+  }
+
+  async totalRevuene() {
+    const result = await this.databaseService.order.aggregate({
+      _sum: { totalPrice: true },
+      where: { status: 'SHIPPED' },
+    });
+
+    return result._sum.totalPrice ?? 0;
+  }
+
+  async pendingOrders() {
+    return this.databaseService.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      where: { status: 'PENDING' },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
   }
 }

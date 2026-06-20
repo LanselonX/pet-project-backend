@@ -1,7 +1,9 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Request,
@@ -13,7 +15,7 @@ import type { ReqWithUser } from 'common/interfaces/request-user';
 import { FindAllOrdersDto } from './dto/find-all-orders.dto';
 import { InfinityPaginationResponseDto } from 'common/dto/infinity-pagination-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
-import { Order, Role } from 'generated/prisma/client';
+import { Order, OrderStatus, Role } from 'generated/prisma/client';
 import { infinityPagination } from 'common/infinity-pagination';
 import { OrderMapper } from './mapper/order.mapper';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -78,5 +80,15 @@ export class OrdersController {
   @Roles(Role.ADMIN)
   async getOrderByIdAdmin(@Param('id') id: string) {
     return this.ordersService.getOrderByIdAdmin(+id);
+  }
+
+  @Patch('status/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async updateOrderStatus(
+    @Param('id') id: string,
+    @Body('status') status: OrderStatus,
+  ) {
+    return this.ordersService.updateOrderStatus(+id, status);
   }
 }
