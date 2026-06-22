@@ -12,14 +12,14 @@ export class DashboardService {
   ) {}
 
   async getStats() {
-    const [meals, pendingOrders, users, orders, revuene] = await Promise.all([
+    const [meals, pendingOrders, users, orders, revenue] = await Promise.all([
       this.mealsService.mealsCount(),
       this.ordersService.pendingOrders(),
       this.usersService.usersCount(),
       this.ordersService.ordersCount(),
-      this.ordersService.totalRevuene(),
+      this.ordersService.totalRevenue(),
     ]);
 
-    return { meals, pendingOrders, users, orders, revuene };
+    return { meals, pendingOrders, users, orders, revenue };
   }
 }
