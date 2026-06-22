@@ -91,7 +91,7 @@ export class OrdersService {
     return await this.databaseService.order.count();
   }
 
-  async totalRevuene() {
+  async totalRevenue() {
     const result = await this.databaseService.order.aggregate({
       _sum: { totalPrice: true },
       where: { status: 'SHIPPED' },
